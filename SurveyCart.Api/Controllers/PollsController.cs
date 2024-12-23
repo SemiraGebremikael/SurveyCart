@@ -1,5 +1,5 @@
 ﻿
-using Microsoft.AspNetCore.Razor.TagHelpers;
+using MapsterMapper;
 
 namespace SurveyCart.Api.Controllers;
 
@@ -11,33 +11,40 @@ public class PollsController : ControllerBase
 
     public PollsController(IPollService pollService)
     {
-        _pollService=pollService;
+        _pollService = pollService;
     }
 
     [HttpGet(template: "")]
     public IActionResult GetAll()
     {
-        return Ok(_pollService.GettAll());
+        var polls = _pollService.GettAll();
+        var response = polls.Adapt<IEnumerable<Poll>>();
+        return Ok(response);
     }
 
 
     [HttpGet(template: "{id}")]
-    public IActionResult Get(int id)
+    public IActionResult Get([FromRoute] int id)
     {
-        return Ok(_pollService.GettById(id));
+        var poll = _pollService.GettById(id);
+        if (poll == null)
+            return NotFound();
+
+        var response = poll.Adapt<PollResponse>();
+        return Ok(response);
     }
 
     [HttpPost(template: "")]
-    public IActionResult Add(Poll request)
+    public IActionResult Add([FromBody] PollRequest request)
     {
-        var newPoll = _pollService.Add(request);
-        return CreatedAtAction(nameof(Add),newPoll);
+        var newPoll = _pollService.Add(request.Adapt<Poll>());
+        return CreatedAtAction(nameof(Get), new {id = newPoll.Id}, newPoll);
     }
 
     [HttpPut(template: "{id}")]
-    public IActionResult Update(int id , Poll request)
+    public IActionResult Update([FromRoute] int id , [FromBody] PollRequest request)
     {
-       var isUpdated = _pollService.update(id, request);
+        var isUpdated = _pollService.update(id, request.Adapt<Poll>());
         if (!isUpdated)
         {
             return NotFound();
@@ -47,7 +54,7 @@ public class PollsController : ControllerBase
 
     [HttpDelete(template: "{id}")]
 
-    public IActionResult Delete(int id) 
+    public IActionResult Delete([FromRoute] int id) 
     {
         var isDeleted = _pollService.delete(id);
         if (!isDeleted)

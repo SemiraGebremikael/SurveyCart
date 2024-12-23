@@ -11,7 +11,6 @@ namespace SurveyCart.Api.Services
         }
       ];
 
-  
         public IEnumerable<Poll> GettAll()
         {
            return _polls;
@@ -21,10 +20,8 @@ namespace SurveyCart.Api.Services
         {
             if(id < 0 )
             {
-
                 throw new ArgumentNullException("Id not found");
             }
-
             var poll = _polls.FirstOrDefault(pol => pol.Id == id);
             return poll;
         }
