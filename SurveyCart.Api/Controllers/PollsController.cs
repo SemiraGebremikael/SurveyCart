@@ -1,5 +1,6 @@
 ﻿
 using MapsterMapper;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace SurveyCart.Api.Controllers;
 
@@ -37,6 +38,7 @@ public class PollsController : ControllerBase
     [HttpPost(template: "")]
     public IActionResult Add([FromBody] PollRequest request)
     {
+    
         var newPoll = _pollService.Add(request.Adapt<Poll>());
         return CreatedAtAction(nameof(Get), new {id = newPoll.Id}, newPoll);
     }
