@@ -1,24 +1,30 @@
-﻿using MapsterMapper;
-using System.Reflection;
-
-namespace SurveyCart.Api
+﻿
+namespace SurveyCart.Api;
+public static class DependencyInjection
 {
-    public static class DependencyInjection
+    public static IServiceCollection AddDependencies(this IServiceCollection services, IConfiguration Configuration)
     {
-        public static IServiceCollection AddDependencies(this IServiceCollection services)
-        {
-           services.AddControllers();
-           services.AddEndpointsApiExplorer();
-           services.AddSwaggerGen();
-           services.AddTransient<IPollService, PollService>();
-           services.AddFluentValidationAutoValidation()
-                   .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+       services.AddControllers();
+       services.AddEndpointsApiExplorer();
+       services.AddSwaggerGen();
+       services.AddTransient<IPollService, PollService>();
+       services.AddFluentValidationAutoValidation()
+               .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
-            var mappingConfiguration = TypeAdapterConfig.GlobalSettings;
-            mappingConfiguration.Scan(Assembly.GetExecutingAssembly());
-            services.AddSingleton<IMapper>(implementationInstance: new Mapper(mappingConfiguration));
-            return services;
+        var mappingConfiguration = TypeAdapterConfig.GlobalSettings;
+        mappingConfiguration.Scan(Assembly.GetExecutingAssembly());
+        services.AddSingleton<IMapper>(implementationInstance: new Mapper(mappingConfiguration));
 
-        }
-    }   
-}
+        var connectionString = Configuration.GetConnectionString("DefaultConnection")??
+            throw new InvalidOperationException("connection String 'DefaultConnection' not found");
+        services.AddDbContext<ApplicationDbContext>(options =>
+         options.UseSqlServer(connectionString));
+
+
+
+
+
+        return services;
+
+    }
+}   
