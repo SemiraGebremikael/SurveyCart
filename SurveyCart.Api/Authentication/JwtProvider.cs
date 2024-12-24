@@ -18,7 +18,7 @@ namespace SurveyCart.Api.Authentication
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ];
 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("636f8080daeae435f1d7920f4b48d9327245dcad21ba42fdf1e85a334d56320b"));
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(""));
             var signingCredentials = new SigningCredentials (symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var expiresIn = 30;
             var expirationDate = DateTime.UtcNow.AddMinutes(expiresIn);

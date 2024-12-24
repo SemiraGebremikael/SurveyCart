@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 namespace SurveyCart.Api;
 public static class DependencyInjection
 {
@@ -12,7 +13,7 @@ public static class DependencyInjection
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();
        services.AddScoped<IAuthService, AuthService>();
-        services.AddAuthConfig();
+        services.AddAuthConfig(Configuration);
 
        services.AddFluentValidationAutoValidation()
                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
@@ -33,7 +34,7 @@ public static class DependencyInjection
 
 
 
-    private static IServiceCollection AddAuthConfig(this IServiceCollection services)
+    private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration Configuration)
     {
        
         services.AddSingleton<IJwtProvider, JwtProvider>();
@@ -53,12 +54,20 @@ public static class DependencyInjection
                   ValidateIssuer = true,
                   ValidateAudience = true,
                   ValidateLifetime = true,
-                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("636f8080daeae435f1d7920f4b48d9327245dcad21ba42fdf1e85a334d56320b")),
-                  ValidAudience ="SurveyCartApp Users"
+                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]!)),
+                  ValidIssuer =Configuration["Jwt:Issuer"],
+                  ValidAudience =Configuration["Jwt:Audience"],
+                  
               };
 
           });
+        var test = new
+        {
+            IssuerSigningKey = Configuration["Jwt:key"],
+            ValidIssuer = Configuration["Jwt:Issuer"],
+            ValidAudience = Configuration["Jwt:Audience"],
 
+        };
 
         return services;
 
