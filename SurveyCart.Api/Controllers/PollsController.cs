@@ -1,8 +1,11 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
+
 namespace SurveyCart.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+
 public class PollsController : ControllerBase
 {
     private readonly IPollService _pollService;
@@ -12,7 +15,9 @@ public class PollsController : ControllerBase
         _pollService = pollService;
     }
 
+
     [HttpGet(template: "")]
+    [Authorize]
     public async Task  <IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var polls = await _pollService.GettAllAsync(cancellationToken);

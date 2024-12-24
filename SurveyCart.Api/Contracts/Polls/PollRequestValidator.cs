@@ -1,8 +1,8 @@
-﻿
-namespace SurveyCart.Api.Contracts.Validation;
-public class PollRequestValidator: AbstractValidator<PollRequest>
+﻿namespace SurveyCart.Api.Contracts.Polls;
+public class LoginRequestValidator : AbstractValidator<PollRequest>
 {
-    public PollRequestValidator() {
+    public LoginRequestValidator()
+    {
         RuleFor(x => x.Title)
             .NotEmpty()
             .Length(min: 5, max: 100);
@@ -20,10 +20,10 @@ public class PollRequestValidator: AbstractValidator<PollRequest>
         RuleFor(x => x)
             .Must(HasValidDates)
             .WithName(nameof(PollRequest.EndAT))
-            .WithMessage("{PropertyName} muste be greater tahn or equals start date"); 
+            .WithMessage("{PropertyName} muste be greater tahn or equals start date");
     }
     private bool HasValidDates(PollRequest pollRequest)
     {
-      return pollRequest.EndAT>=pollRequest.StartAT;
+        return pollRequest.EndAT >= pollRequest.StartAT;
     }
 }

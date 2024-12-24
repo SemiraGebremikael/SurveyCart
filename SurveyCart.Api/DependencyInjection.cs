@@ -1,4 +1,7 @@
 ﻿
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 namespace SurveyCart.Api;
 public static class DependencyInjection
 {
@@ -8,6 +11,9 @@ public static class DependencyInjection
        services.AddEndpointsApiExplorer();
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();
+       services.AddScoped<IAuthService, AuthService>();
+        services.AddAuthConfig();
+
        services.AddFluentValidationAutoValidation()
                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
@@ -18,13 +24,44 @@ public static class DependencyInjection
         var connectionString = Configuration.GetConnectionString("DefaultConnection")??
             throw new InvalidOperationException("connection String 'DefaultConnection' not found");
         services.AddDbContext<ApplicationDbContext>(options =>
-         options.UseSqlServer(connectionString));
-
-
-
+        options.UseSqlServer(connectionString));
 
 
         return services;
 
     }
-}   
+
+
+
+    private static IServiceCollection AddAuthConfig(this IServiceCollection services)
+    {
+       
+        services.AddSingleton<IJwtProvider, JwtProvider>();
+        services.AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>();
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+          .AddJwtBearer(o =>
+          {
+              o.SaveToken = true;
+              o.TokenValidationParameters = new TokenValidationParameters
+              {
+                  ValidateIssuerSigningKey = true,
+                  ValidateIssuer = true,
+                  ValidateAudience = true,
+                  ValidateLifetime = true,
+                  IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("636f8080daeae435f1d7920f4b48d9327245dcad21ba42fdf1e85a334d56320b")),
+                  ValidAudience ="SurveyCartApp Users"
+              };
+
+          });
+
+
+        return services;
+
+    }
+}
+
