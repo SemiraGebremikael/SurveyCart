@@ -12,14 +12,40 @@ namespace SurveyCart.Api.Controllers
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> LogginAsync(LoginRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> LogginAsync( [FromBody]LoginRequest request, CancellationToken cancellationToken)
         {
-            var authResut = await _authService.getTokenAsync(request.Email, request.Password, cancellationToken);
+            var authResut = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
             if (authResut == null)
             {
                 return BadRequest("Invalid email or password");
             }
             return Ok("Invalid email or password");
+        }
+
+
+        [HttpPost("refreshToken")]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        {
+            var authResut = await _authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+            if (authResut == null)
+            {
+                return BadRequest("Invalid token");
+            }
+            return Ok("Invalid email or password");
+        }
+
+
+        [HttpPost("revokeRefreshToken")]
+        public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        {
+            var isRoevoked = await _authService.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+
+            if (isRoevoked == false)
+            {
+                return BadRequest("Operation failed");
+            }
+
+            return Ok("Token revoked successfully");
         }
     }
 }

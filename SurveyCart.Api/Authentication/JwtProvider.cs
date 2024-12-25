@@ -5,8 +5,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace SurveyCart.Api.Authentication
-{
+namespace SurveyCart.Api.Authentication;
     public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     {
         private readonly JwtOptions _options = options.Value;
@@ -35,5 +34,31 @@ namespace SurveyCart.Api.Authentication
             return (token: new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn *60);
         }
 
+        public string? ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    IssuerSigningKey = symmetricSecurityKey,
+                    ValidateIssuerSigningKey = true,
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    ClockSkew = TimeSpan.Zero
+
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+               return  jwtToken.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value;
+
+            }
+            catch 
+            { 
+                return null; 
+            }
+
+        }
     }
-}
+
