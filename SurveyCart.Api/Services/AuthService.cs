@@ -27,7 +27,7 @@ namespace SurveyCart.Api.Services
                 return null;
             }
             var (token, expiresIn)= _jwtProvider.GenerateToken(user);
-            return new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn);
+            return new AuthResponse(user.Id, user.Email,  user.FirstName, user.LastName, token, expiresIn);
 
         }
     }

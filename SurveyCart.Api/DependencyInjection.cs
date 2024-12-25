@@ -24,9 +24,8 @@ public static class DependencyInjection
 
         var connectionString = Configuration.GetConnectionString("DefaultConnection")??
             throw new InvalidOperationException("connection String 'DefaultConnection' not found");
-        services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlServer(connectionString));
-
+        services.AddDbContext<ApplicationDbContext>(options => 
+                                                    options.UseSqlServer(connectionString));
 
         return services;
 
@@ -36,10 +35,17 @@ public static class DependencyInjection
 
     private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration Configuration)
     {
-       
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddIdentity<User, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
+        services.AddOptions<JwtOptions>()
+                .BindConfiguration(JwtOptions.SectionName)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+        var jwtSetting = Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -61,13 +67,6 @@ public static class DependencyInjection
               };
 
           });
-        var test = new
-        {
-            IssuerSigningKey = Configuration["Jwt:key"],
-            ValidIssuer = Configuration["Jwt:Issuer"],
-            ValidAudience = Configuration["Jwt:Audience"],
-
-        };
 
         return services;
 

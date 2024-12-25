@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -6,8 +7,11 @@ using System.Text;
 
 namespace SurveyCart.Api.Authentication
 {
-    public class JwtProvider : IJwtProvider
+    public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
     {
+        private readonly JwtOptions _options = options.Value;
+
+
         public (string token, int expiresIn) GenerateToken(User user)
         {
             Claim[] claims = [
@@ -18,13 +22,13 @@ namespace SurveyCart.Api.Authentication
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
                 ];
 
-            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(""));
+            var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
             var signingCredentials = new SigningCredentials (symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
             var expiresIn = 30;
             var expirationDate = DateTime.UtcNow.AddMinutes(expiresIn);
             var token = new JwtSecurityToken(
-                issuer: "SurveyCartApp",
-                audience: "SurveyCartApp Users",
+                issuer: _options.Issuer,
+                audience: _options.Audience,
                 claims: claims,
                 signingCredentials: signingCredentials
                 );
