@@ -6,6 +6,7 @@ namespace SurveyCart.Api.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 
+
 public class PollsController : ControllerBase
 {
     private readonly IPollService _pollService;
@@ -18,6 +19,7 @@ public class PollsController : ControllerBase
 
     [HttpGet(template: "")]
     [Authorize]
+
     public async Task  <IActionResult> GetAll(CancellationToken cancellationToken)
     {
         var polls = await _pollService.GettAllAsync(cancellationToken);
@@ -42,7 +44,7 @@ public class PollsController : ControllerBase
     {
 
         var newPoll = await _pollService.AddAsync(request.Adapt<Poll>(), cancellationToken);
-        return CreatedAtAction(nameof(Get), new { id = newPoll.Id }, newPoll);
+        return CreatedAtAction(nameof(Get), new { id = newPoll.Id }, newPoll.Adapt<PollResponse>());
     }
 
     [HttpPut(template: "{id}")]

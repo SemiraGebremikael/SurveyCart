@@ -1,6 +1,4 @@
 ﻿
-using SurveyCart.Api.Entities;
-
 namespace SurveyCart.Api.Services;
 
 public class PollService : IPollService
@@ -29,7 +27,7 @@ public class PollService : IPollService
     public async Task< Poll> AddAsync(Poll poll, CancellationToken cancellationToken = default)
     {
        await _context.AddAsync(poll, cancellationToken);
-        await _context.SaveChangesAsync();  
+       await _context.SaveChangesAsync();  
 
         return poll;
     }

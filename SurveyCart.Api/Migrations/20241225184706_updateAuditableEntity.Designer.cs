@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurveyCart.Api.Peristence;
 
@@ -11,9 +12,11 @@ using SurveyCart.Api.Peristence;
 namespace SurveyCart.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241225184706_updateAuditableEntity")]
+    partial class updateAuditableEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,13 +166,6 @@ namespace SurveyCart.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedById")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -189,23 +185,10 @@ namespace SurveyCart.Api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("UdateddById")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UpdatedById")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("UpdatedOn")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedById");
 
                     b.HasIndex("Title")
                         .IsUnique();
-
-                    b.HasIndex("UdateddById");
 
                     b.ToTable("Polls");
                 });
@@ -334,23 +317,6 @@ namespace SurveyCart.Api.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SurveyCart.Api.Entities.Poll", b =>
-                {
-                    b.HasOne("SurveyCart.Api.Entities.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SurveyCart.Api.Entities.User", "UdateddBy")
-                        .WithMany()
-                        .HasForeignKey("UdateddById");
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("UdateddBy");
                 });
 
             modelBuilder.Entity("SurveyCart.Api.Entities.User", b =>

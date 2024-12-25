@@ -1,7 +1,9 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 namespace SurveyCart.Api.Services;
+
 public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
@@ -105,5 +107,6 @@ public class AuthService : IAuthService
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
     }
+
 
 }

@@ -8,6 +8,5 @@ namespace SurveyCart.Api.Services
         Task<AuthResponse?> GetRefreshTokenAsync(string token,string refreshToken, CancellationToken cancellationToken = default );
         Task<bool?> RevokeRefreshTokenAsync(string token,string refreshToken, CancellationToken cancellationToken = default );
 
-
     }
 }
