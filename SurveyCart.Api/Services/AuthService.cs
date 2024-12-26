@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SurveyCart.Api.Entities;
 using System.Security.Cryptography;
 namespace SurveyCart.Api.Services;
 
@@ -18,7 +19,9 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
+   
         var user = await _userManager.FindByEmailAsync(email);
+
         if (user == null)
         {
             return null;
