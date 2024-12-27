@@ -15,11 +15,7 @@ namespace SurveyCart.Api.Controllers
         public async Task<IActionResult> LogginAsync( [FromBody]LoginRequest request, CancellationToken cancellationToken)
         {
             var authResut = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
-            if (authResut == null)
-            {
-                return BadRequest("Invalid email or password");
-            }
-            return Ok("Invalid email or password");
+            return authResut.IsSuccess ? Ok(authResut) : BadRequest(authResut.Error);
         }
 
 

@@ -1,10 +1,10 @@
 ﻿namespace SurveyCart.Api.Entities;
-public class Poll: AuditableEntity
+public class Poll
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public bool IsPublished { get; set; }
+    public bool IsPublished { get; set; } = true;
     public DateOnly StartAT { get; set; }
     public DateOnly EndAT { get; set; }
   

@@ -9,35 +9,41 @@ public class PollService : IPollService
         _context = applicationDb;
     }
 
-    public async Task<IEnumerable<Poll>> GettAllAsync( CancellationToken cancellationToken = default)
-    { 
-      return  await _context.Polls.AsNoTracking().ToListAsync(cancellationToken);
-    }
-
-    public async Task<Poll?> GettByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<PollResponse>>> GettAllAsync(CancellationToken cancellationToken = default)
     {
-        if (id < 0)
-        {
-            throw new ArgumentNullException("Id not found");
-        }
-
-        return await _context.Polls.FindAsync(id, cancellationToken);
+        var polls = await _context.Polls.AsNoTracking().ToListAsync(cancellationToken);
+        return Result.Success(polls.Adapt<IEnumerable<PollResponse>>());
     }
 
-    public async Task< Poll> AddAsync(Poll poll, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> GettByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+       var poll = await _context.Polls.FindAsync(id, cancellationToken);
+        if (poll == null)
+        {
+            return Result.Failure<PollResponse>(PollErrors.PollNoFound);
+
+        }
+        return Result.Success(poll.Adapt<PollResponse>());
+    }
+
+    public async Task<Result<PollResponse>> AddAsync(Poll poll, CancellationToken cancellationToken = default)
     {
        await _context.AddAsync(poll, cancellationToken);
-       await _context.SaveChangesAsync();  
+       await _context.SaveChangesAsync();
+        if (poll == null)
+        {
+            return Result.Failure<PollResponse>(PollErrors.PollNoFound);
+        }
+        return Result.Success(poll.Adapt<PollResponse>());
 
-        return poll;
     }
 
-    public async Task<bool> updateAsync(int id, Poll poll, CancellationToken cancellationToken = default)
+    public async Task<Result> updateAsync(int id, PollRequest poll, CancellationToken cancellationToken = default)
     {
-        var currentPoll = await  GettByIdAsync(id, cancellationToken);
+        var currentPoll = await _context.Polls.FindAsync(id, cancellationToken);
         if (currentPoll == null)
         {
-            return false;
+            return Result.Failure(PollErrors.PollNoFound);
         }
         currentPoll.Title = poll.Title;
         currentPoll.Description = poll.Description;
@@ -45,31 +51,31 @@ public class PollService : IPollService
         currentPoll.EndAT = poll.EndAT;
         await _context.SaveChangesAsync();
 
-        return true;
+        return Result.Success();
     }
 
-    public async Task<bool> deleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> deleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var pollToRemove = await GettByIdAsync(id, cancellationToken);
+        var pollToRemove = await _context.Polls.FindAsync(id, cancellationToken);
         if (pollToRemove == null)
         {
-            return false;
+            return Result.Failure(PollErrors.PollNoFound);
         }
         _context.Remove(pollToRemove);
         await _context.SaveChangesAsync( cancellationToken);
-        return true;
+        return Result.Success();
 
     }
-    public async Task<bool> TogglePublishSatusAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> TogglePublishSatusAsync(int id, CancellationToken cancellationToken = default)
     {
         var poll = await GettByIdAsync(id, cancellationToken);
         if (poll == null)
         {
-            return false;
+            return Result.Failure(PollErrors.PollNoFound);
         }
-        poll.IsPublished = !poll.IsPublished;
+        //poll.IsPublished = !poll.IsPublished;
         await _context.SaveChangesAsync();
-        return true;
+        return Result.Success();
     }
 
 

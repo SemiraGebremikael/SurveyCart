@@ -1,7 +1,5 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using SurveyCart.Api.Entities;
 using System.Security.Cryptography;
 namespace SurveyCart.Api.Services;
 
@@ -17,19 +15,20 @@ public class AuthService : IAuthService
         _jwtProvider = jwtProvider;
     }
 
-    public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
+    public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
    
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)
         {
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
         }
-       var isvalidPassWord  = await _userManager.CheckPasswordAsync(user, password);
+        var isvalidPassWord  = await _userManager.CheckPasswordAsync(user, password);
         if (!isvalidPassWord)
         {
-            return null;
+            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
+
         };
         var (token, expiresIn)= _jwtProvider.GenerateToken(user);
         var refreshToken = GenerateRefreshToken();
@@ -40,7 +39,9 @@ public class AuthService : IAuthService
             ExpiresOn = refreshTokenExpiration
         });
         await _userManager.UpdateAsync(user);
-        return new AuthResponse(user.Id, user.Email,  user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+
+        var response = new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+        return Result.Success(response);
 
     }
 

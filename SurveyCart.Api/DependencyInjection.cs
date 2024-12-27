@@ -9,13 +9,13 @@ public static class DependencyInjection
     public static IServiceCollection AddDependencies(this IServiceCollection services, IConfiguration Configuration)
     {
        services.AddControllers();
-        services.AddCors(options =>
-                         options.AddDefaultPolicy(
-                             builder => builder .AllowAnyMethod()
-                                                 .AllowAnyHeader()
-                                                 .WithOrigins(Configuration.GetSection("AllowedOrgins").Get<string[]>()!)
+        //services.AddCors(options =>
+        //                 options.AddDefaultPolicy(
+        //                     builder => builder .AllowAnyMethod()
+        //                                         .AllowAnyHeader()
+        //                                         .WithOrigins(Configuration.GetSection("AllowedOrgins").Get<string[]>()!)
 
-                         ));
+        //                 ));
        services.AddEndpointsApiExplorer();
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();

@@ -15,6 +15,10 @@ global using SurveyCart.Api.Contracts.Polls;
 global using SurveyCart.Api.Contracts.Authentication;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
+global using SurveyCart.Api.Abstractions;
+global using SurveyCart.Api.Errors;
+
+
 
 
 
