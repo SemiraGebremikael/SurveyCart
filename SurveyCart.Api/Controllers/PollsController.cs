@@ -1,4 +1,7 @@
 ﻿
+using SurveyCart.Api.Abstractions;
+using SurveyCart.Api.Entities;
+
 namespace SurveyCart.Api.Controllers;
 
 [Route("api/[controller]")]
@@ -19,13 +22,14 @@ public class PollsController : ControllerBase
     // [Authorize]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {
-        var polls = await _pollService.GettAllAsync(cancellationToken);
+        var result = await _pollService.GettAllAsync(cancellationToken);
 
-        if (polls.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(polls.Error);
+            return Ok(result.Value);
         }
-        return Ok(polls.Value);
+
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
     }
 
 
@@ -33,35 +37,36 @@ public class PollsController : ControllerBase
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken)
     {
         var result = await _pollService.GettByIdAsync(id, cancellationToken);
-        if (result.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(result.Error);
+            return Ok(result.Value);
         }
-        return Ok(result.Value);
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
     }
 
     [HttpPost(template: "")]
     public async Task<IActionResult> Add([FromBody] Poll request, CancellationToken cancellationToken)
     {
 
-        var newPoll = await _pollService.AddAsync(request, cancellationToken);
+        var result = await _pollService.AddAsync(request, cancellationToken);
         //return CreatedAtAction(nameof(Get), new { id = newPoll }, newPoll);
-        if (newPoll.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(newPoll.Error);
+            return Ok(result.Value);
         }
-        return Ok(newPoll.Value);
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
     }
 
     [HttpPut(template: "{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest request, CancellationToken cancellationToken)
     {
         var result =  await _pollService.updateAsync(id, request, cancellationToken);
-        if (result.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(result.Error);
+            return NoContent();
         }
-        return  NoContent();
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+
     }
 
     [HttpDelete(template: "{id}")]
@@ -69,11 +74,12 @@ public class PollsController : ControllerBase
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
     {
         var result = await _pollService.deleteAsync(id, cancellationToken);
-        if (result.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(result.Error);
+            return NoContent();
+
         }
-        return NoContent();
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
 
     }
 
@@ -82,11 +88,12 @@ public class PollsController : ControllerBase
     public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken)
     {
         var result = await _pollService.TogglePublishSatusAsync(id, cancellationToken);
-        if (result.IsFailure)
+        if (result.IsSuccess)
         {
-            return NotFound(result.Error);
+            return NoContent();
         }
-        return NoContent();
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+
     }
 
 }

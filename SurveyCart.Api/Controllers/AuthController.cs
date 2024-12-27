@@ -15,7 +15,12 @@ namespace SurveyCart.Api.Controllers
         public async Task<IActionResult> LogginAsync( [FromBody]LoginRequest request, CancellationToken cancellationToken)
         {
             var authResut = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
-            return authResut.IsSuccess ? Ok(authResut) : BadRequest(authResut.Error);
+            if (authResut.IsSuccess)
+            {
+                return Ok(authResut);
+            }
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: authResut.Error.cod, detail: authResut.Error.Dscription);
+              
         }
 
 
@@ -23,11 +28,12 @@ namespace SurveyCart.Api.Controllers
         public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             var authResut = await _authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
-            if (authResut == null)
+            if (authResut.IsSuccess)
             {
-                return BadRequest("Invalid token");
+                return Ok(authResut);
             }
-            return Ok("Invalid email or password");
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: authResut.Error.cod, detail: authResut.Error.Dscription);
+
         }
 
 
@@ -36,12 +42,13 @@ namespace SurveyCart.Api.Controllers
         {
             var isRoevoked = await _authService.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
 
-            if (isRoevoked == false)
+            if (isRoevoked.IsSuccess)
             {
-                return BadRequest("Operation failed");
+
+                return Ok(isRoevoked);
             }
 
-            return Ok("Token revoked successfully");
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: isRoevoked.Error.cod, detail: isRoevoked.Error.Dscription);
         }
     }
 }

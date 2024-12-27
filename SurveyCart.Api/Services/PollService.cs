@@ -21,7 +21,6 @@ public class PollService : IPollService
         if (poll == null)
         {
             return Result.Failure<PollResponse>(PollErrors.PollNoFound);
-
         }
         return Result.Success(poll.Adapt<PollResponse>());
     }
@@ -35,7 +34,6 @@ public class PollService : IPollService
             return Result.Failure<PollResponse>(PollErrors.PollNoFound);
         }
         return Result.Success(poll.Adapt<PollResponse>());
-
     }
 
     public async Task<Result> updateAsync(int id, PollRequest poll, CancellationToken cancellationToken = default)
