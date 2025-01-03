@@ -1,4 +1,5 @@
 ﻿
+using FluentValidation.Validators;
 using SurveyCart.Api.Abstractions;
 using SurveyCart.Api.Entities;
 
@@ -45,16 +46,16 @@ public class PollsController : ControllerBase
     }
 
     [HttpPost(template: "")]
-    public async Task<IActionResult> Add([FromBody] Poll request, CancellationToken cancellationToken)
+    public async Task<IActionResult> Add([FromBody] PollRequest request, CancellationToken cancellationToken)
     {
 
         var result = await _pollService.AddAsync(request, cancellationToken);
-        //return CreatedAtAction(nameof(Get), new { id = newPoll }, newPoll);
         if (result.IsSuccess)
         {
-            return Ok(result.Value);
+            //return CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value);
+            return Ok(result.Value.Id);
         }
-        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+        return Problem(statusCode: StatusCodes.Status409Conflict, title: result.Error.cod, detail: result.Error.Dscription);
     }
 
     [HttpPut(template: "{id}")]
@@ -65,7 +66,7 @@ public class PollsController : ControllerBase
         {
             return NoContent();
         }
-        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+        return Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
 
     }
 

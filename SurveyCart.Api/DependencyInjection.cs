@@ -20,7 +20,9 @@ public static class DependencyInjection
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();
        services.AddScoped<IAuthService, AuthService>();
-        services.AddAuthConfig(Configuration);
+       services.AddExceptionHandler<GlobalExceptionHandler>();
+       services.AddProblemDetails();
+       services.AddAuthConfig(Configuration);
 
        services.AddFluentValidationAutoValidation()
                .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());

@@ -1,4 +1,6 @@
 ﻿
+using Azure.Core;
+
 namespace SurveyCart.Api.Services;
 
 public class PollService : IPollService
@@ -25,29 +27,39 @@ public class PollService : IPollService
         return Result.Success(poll.Adapt<PollResponse>());
     }
 
-    public async Task<Result<PollResponse>> AddAsync(Poll poll, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> AddAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
-       await _context.AddAsync(poll, cancellationToken);
-       await _context.SaveChangesAsync();
-        if (poll == null)
+        var isExistingTitle = await _context.Polls.AnyAsync(x => x.Title == request.Title, cancellationToken: cancellationToken);
+        if (isExistingTitle)
         {
-            return Result.Failure<PollResponse>(PollErrors.PollNoFound);
+            Result.Failure<PollResponse>(PollErrors.DublicatedPollTitle);
         }
-        return Result.Success(poll.Adapt<PollResponse>());
+
+        var poll = request.Adapt<Poll>();
+        await _context.AddAsync(poll, cancellationToken);
+        await _context.SaveChangesAsync(cancellationToken);
+        return Result.Success(request.Adapt<PollResponse>());
     }
 
-    public async Task<Result> updateAsync(int id, PollRequest poll, CancellationToken cancellationToken = default)
+    public async Task<Result> updateAsync(int id, PollRequest request, CancellationToken cancellationToken = default)
     {
+        var isExistingTitle = await _context.Polls.AnyAsync(x => x.Title == request.Title && x.Id != id, cancellationToken: cancellationToken);
+        if (isExistingTitle)
+        {
+            Result.Failure<PollResponse>(PollErrors.DublicatedPollTitle);
+        }
+
+
         var currentPoll = await _context.Polls.FindAsync(id, cancellationToken);
         if (currentPoll == null)
         {
             return Result.Failure(PollErrors.PollNoFound);
         }
-        currentPoll.Title = poll.Title;
-        currentPoll.Description = poll.Description;
-        currentPoll.StartAT = poll.StartAT;
-        currentPoll.EndAT = poll.EndAT;
-        await _context.SaveChangesAsync();
+        currentPoll.Title = request.Title;
+        currentPoll.Description = request.Description;
+        currentPoll.StartAT = request.StartAT;
+        currentPoll.EndAT = request.EndAT;
+        await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
