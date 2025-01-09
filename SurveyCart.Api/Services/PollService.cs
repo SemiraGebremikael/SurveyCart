@@ -78,12 +78,12 @@ public class PollService : IPollService
     }
     public async Task<Result> TogglePublishSatusAsync(int id, CancellationToken cancellationToken = default)
     {
-        var poll = await GettByIdAsync(id, cancellationToken);
+        var poll = await _context.Polls.FindAsync(id, cancellationToken);
         if (poll == null)
         {
             return Result.Failure(PollErrors.PollNoFound);
         }
-        //poll.IsPublished = !poll.IsPublished;
+        poll.IsPublished = !poll.IsPublished;
         await _context.SaveChangesAsync();
         return Result.Success();
     }

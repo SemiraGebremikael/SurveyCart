@@ -20,8 +20,9 @@ public static class DependencyInjection
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();
        services.AddScoped<IAuthService, AuthService>();
-       services.AddExceptionHandler<GlobalExceptionHandler>();
-       services.AddProblemDetails();
+       services.AddScoped<IQuestionService, QuestionService>();
+       //services.AddExceptionHandler<GlobalExceptionHandler>();
+       //services.AddProblemDetails();
        services.AddAuthConfig(Configuration);
 
        services.AddFluentValidationAutoValidation()

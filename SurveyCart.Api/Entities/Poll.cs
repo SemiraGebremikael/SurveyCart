@@ -7,6 +7,7 @@ public class Poll
     public bool IsPublished { get; set; } = true;
     public DateOnly StartAT { get; set; }
     public DateOnly EndAT { get; set; }
+    public ICollection<Question> questions { get; set; } = [];
   
 
 
