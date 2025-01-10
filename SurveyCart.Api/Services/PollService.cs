@@ -1,5 +1,6 @@
 ﻿
 using Azure.Core;
+using SurveyCart.Api.Entities;
 
 namespace SurveyCart.Api.Services;
 
@@ -13,8 +14,26 @@ public class PollService : IPollService
 
     public async Task<Result<IEnumerable<PollResponse>>> GettAllAsync(CancellationToken cancellationToken = default)
     {
-        var polls = await _context.Polls.AsNoTracking().ToListAsync(cancellationToken);
+        var polls =  await _context.Polls
+            .AsNoTracking()
+            .ProjectToType<PollResponse>()
+            .ToListAsync(cancellationToken);
         return Result.Success(polls.Adapt<IEnumerable<PollResponse>>());
+
+
+    }
+
+    public async Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync(CancellationToken cancellationToken = default)
+    {
+
+        var currentPolls = await _context.Polls
+            .Where(x => x.IsPublished && x.StartAT <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndAT >= DateOnly.FromDateTime(DateTime.UtcNow))
+            .AsNoTracking()
+            .ProjectToType<PollResponse>()
+            .ToListAsync(cancellationToken);
+
+        return Result.Success(currentPolls.Adapt<IEnumerable<PollResponse>>());
+
     }
 
     public async Task<Result<PollResponse>> GettByIdAsync(int id, CancellationToken cancellationToken = default)

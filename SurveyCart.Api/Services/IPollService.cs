@@ -3,6 +3,7 @@
 public interface IPollService
 {
    Task <Result<IEnumerable<PollResponse>>> GettAllAsync( CancellationToken cancellationToken = default);
+   Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync(CancellationToken cancellationToken = default);
    Task<Result<PollResponse>> GettByIdAsync(int id, CancellationToken cancellationToken = default);
    Task<Result<PollResponse>> AddAsync (PollRequest request, CancellationToken cancellationToken = default);
    Task <Result> updateAsync ( int id , PollRequest request, CancellationToken cancellationToken = default);

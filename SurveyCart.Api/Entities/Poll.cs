@@ -8,6 +8,7 @@ public class Poll
     public DateOnly StartAT { get; set; }
     public DateOnly EndAT { get; set; }
     public ICollection<Question> questions { get; set; } = [];
+    public ICollection<Vote> votes { get; set; } = [];
   
 
 

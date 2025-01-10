@@ -33,6 +33,19 @@ public class PollsController : ControllerBase
         return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
     }
 
+    [HttpGet(template: "currentPolls")]
+    public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken)
+    {
+        var result = await _pollService.GetCurrentAsync(cancellationToken);
+
+        if (result.IsSuccess)
+        {
+            return Ok(result.Value);
+        }
+
+        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+    }
+
 
     [HttpGet(template: "{id}")]
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken)
