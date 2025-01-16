@@ -1,8 +1,14 @@
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDependencies(builder.Configuration);
 
-var app = builder.Build();
 
+builder.Host.UseSerilog((context, configuration) =>
+
+    configuration.ReadFrom.Configuration(context.Configuration)
+);
+var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
@@ -10,6 +16,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 //app.UseCors();
 app.UseAuthorization();

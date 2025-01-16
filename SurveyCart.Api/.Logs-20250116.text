@@ -1,0 +1,97 @@
+2025-01-16 07:28:53 [Information] Now listening on: "https://localhost:7038"
+2025-01-16 07:28:53 [Information] Now listening on: "http://localhost:5284"
+2025-01-16 07:28:53 [Information] Application started. Press Ctrl+C to shut down.
+2025-01-16 07:28:53 [Information] Hosting environment: "Development"
+2025-01-16 07:28:53 [Information] Content root path: "C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api"
+2025-01-16 07:29:38 [Information] Executed DbCommand ("171"ms) [Parameters=["@__p_0='?' (DbType = Int32)"], CommandType='Text', CommandTimeout='30']"
+""SELECT TOP(1) [p].[Id], [p].[Description], [p].[EndAT], [p].[IsPublished], [p].[StartAT], [p].[Title]
+FROM [Polls] AS [p]
+WHERE [p].[Id] = @__p_0"
+2025-01-16 07:29:38 [Error] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Operation is not valid due to the current state of the object.
+   at SurveyCart.Api.Abstractions.Result..ctor(Boolean isSuccess, Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 18
+   at SurveyCart.Api.Abstractions.Result.Failure(Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 29
+   at SurveyCart.Api.Services.PollService.deleteAsync(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Services\PollService.cs:line 91
+   at SurveyCart.Api.Controllers.PollsController.Delete(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Controllers\PollsController.cs:line 90
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-01-16 07:30:52 [Information] Executed DbCommand ("37"ms) [Parameters=["@__pollId_0='?' (DbType = Int32), @__id_1='?' (DbType = Int32), @__request_Content_2='?' (Size = 1000)"], CommandType='Text', CommandTimeout='30']"
+""SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Questions] AS [q]
+        WHERE [q].[PollId] = @__pollId_0 AND [q].[Id] <> @__id_1 AND [q].[Content] = @__request_Content_2) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END"
+2025-01-16 07:30:52 [Information] Executed DbCommand ("14"ms) [Parameters=["@__pollId_0='?' (DbType = Int32), @__id_1='?' (DbType = Int32)"], CommandType='Text', CommandTimeout='30']"
+""SELECT [q0].[Id], [q0].[Content], [q0].[PollId], [q0].[isActive], [a].[Id], [a].[Content], [a].[QuestionId], [a].[isActive]
+FROM (
+    SELECT TOP(2) [q].[Id], [q].[Content], [q].[PollId], [q].[isActive]
+    FROM [Questions] AS [q]
+    WHERE [q].[PollId] = @__pollId_0 AND [q].[Id] = @__id_1
+) AS [q0]
+LEFT JOIN [Answers] AS [a] ON [q0].[Id] = [a].[QuestionId]
+ORDER BY [q0].[Id]"
+2025-01-16 07:35:19 [Information] Now listening on: "https://localhost:7038"
+2025-01-16 07:35:20 [Information] Now listening on: "http://localhost:5284"
+2025-01-16 07:35:20 [Information] Application started. Press Ctrl+C to shut down.
+2025-01-16 07:35:20 [Information] Hosting environment: "Development"
+2025-01-16 07:35:20 [Information] Content root path: "C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api"
+2025-01-16 07:35:34 [Information] Executed DbCommand ("136"ms) [Parameters=["@__p_0='?' (DbType = Int32)"], CommandType='Text', CommandTimeout='30']"
+""SELECT TOP(1) [p].[Id], [p].[Description], [p].[EndAT], [p].[IsPublished], [p].[StartAT], [p].[Title]
+FROM [Polls] AS [p]
+WHERE [p].[Id] = @__p_0"
+2025-01-16 07:35:34 [Error] HTTP "DELETE" "/api/Polls/235" responded 500 in 4917.0625 ms
+System.InvalidOperationException: Operation is not valid due to the current state of the object.
+   at SurveyCart.Api.Abstractions.Result..ctor(Boolean isSuccess, Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 18
+   at SurveyCart.Api.Abstractions.Result.Failure(Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 29
+   at SurveyCart.Api.Services.PollService.deleteAsync(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Services\PollService.cs:line 91
+   at SurveyCart.Api.Controllers.PollsController.Delete(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Controllers\PollsController.cs:line 90
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+2025-01-16 07:35:34 [Error] An unhandled exception has occurred while executing the request.
+System.InvalidOperationException: Operation is not valid due to the current state of the object.
+   at SurveyCart.Api.Abstractions.Result..ctor(Boolean isSuccess, Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 18
+   at SurveyCart.Api.Abstractions.Result.Failure(Error error) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Abstractions\Result.cs:line 29
+   at SurveyCart.Api.Services.PollService.deleteAsync(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Services\PollService.cs:line 91
+   at SurveyCart.Api.Controllers.PollsController.Delete(Int32 id, CancellationToken cancellationToken) in C:\Users\semir\source\repos\SurveyCart\SurveyCart.Api\Controllers\PollsController.cs:line 90
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.TaskOfIActionResultExecutor.Execute(ActionContext actionContext, IActionResultTypeMapper mapper, ObjectMethodExecutor executor, Object controller, Object[] arguments)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeActionMethodAsync>g__Awaited|12_0(ControllerActionInvoker invoker, ValueTask`1 actionResultValueTask)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeNextActionFilterAsync>g__Awaited|10_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Rethrow(ActionExecutedContextSealed context)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.Next(State& next, Scope& scope, Object& state, Boolean& isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.<InvokeInnerFilterAsync>g__Awaited|13_0(ControllerActionInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeFilterPipelineAsync>g__Awaited|20_0(ResourceInvoker invoker, Task lastTask, State next, Scope scope, Object state, Boolean isCompleted)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Mvc.Infrastructure.ResourceInvoker.<InvokeAsync>g__Awaited|17_0(ResourceInvoker invoker, Task task, IDisposable scope)
+   at Microsoft.AspNetCore.Authorization.AuthorizationMiddleware.Invoke(HttpContext context)
+   at Serilog.AspNetCore.RequestLoggingMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.SwaggerUI.SwaggerUIMiddleware.Invoke(HttpContext httpContext)
+   at Swashbuckle.AspNetCore.Swagger.SwaggerMiddleware.Invoke(HttpContext httpContext, ISwaggerProvider swaggerProvider)
+   at Microsoft.AspNetCore.Authentication.AuthenticationMiddleware.Invoke(HttpContext context)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2025-01-16 07:36:17 [Information] Executed DbCommand ("26"ms) [Parameters=[""], CommandType='Text', CommandTimeout='30']"
+""SELECT [p].[Id], [p].[Title], [p].[Description], [p].[IsPublished]
+FROM [Polls] AS [p]"
+2025-01-16 07:36:17 [Information] HTTP "GET" "/api/Polls" responded 200 in 557.4890 ms
