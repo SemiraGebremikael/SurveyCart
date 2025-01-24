@@ -23,7 +23,6 @@ namespace SurveyCart.Api.Controllers
               
         }
 
-
         [HttpPost("refreshToken")]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {

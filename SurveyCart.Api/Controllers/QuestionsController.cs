@@ -11,25 +11,46 @@ namespace SurveyCart.Api.Controllers;
 public class QuestionsController : Controller
 {
     private readonly IQuestionService _questionService;
-    public QuestionsController(IQuestionService questionService)
+    private readonly ILogger<QuestionsController> _logger;
+    public QuestionsController(IQuestionService questionService, ILogger<QuestionsController> logger)
     {
         _questionService = questionService;
+        _logger = logger;
     }
 
 
     [HttpGet("")]
     public async Task<IActionResult> GetAll([FromRoute] int pollId, CancellationToken cancellationToken)
     {
-        var result = await _questionService.GetAll(pollId, cancellationToken);
-        return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+        try
+        {
+            var result = await _questionService.GetAll(pollId, cancellationToken);
+            return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while get  all questions ");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+
     }
 
 
     [HttpGet("id")]
     public async Task<IActionResult> Get([FromRoute] int pollId, int id, [FromRoute] CancellationToken cancellationToken)
     {
-        var result = await _questionService.GetAsync(pollId, id, cancellationToken);
-        return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+        try
+        {
+            var result = await _questionService.GetAsync(pollId, id, cancellationToken);
+            return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while get a questions ");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+
+
 
     }
 
@@ -37,41 +58,68 @@ public class QuestionsController : Controller
     [HttpPost("")]
     public async Task<IActionResult> Add([FromRoute] int pollId, [FromBody] QuestionRequest request, CancellationToken cancellationToken)
     {
-        var result = await _questionService.AddAsync(pollId,request,cancellationToken);
-
-        if (result.IsSuccess)
+        try
         {
-           return CreatedAtAction(nameof(Get), new {pollId, result.Value.Id}, result.Value);
+            var result = await _questionService.AddAsync(pollId, request, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                return CreatedAtAction(nameof(Get), new { pollId, result.Value.Id }, result.Value);
+            }
+            return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
+                ? Problem(statusCode: StatusCodes.Status409Conflict)
+                : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
         }
-        return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
-            ? Problem(statusCode: StatusCodes.Status409Conflict)
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while add a questions ");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
     }
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int pollId, [FromRoute] int id, [FromBody] QuestionRequest request, CancellationToken cancellationToken)
     {
-        var result = await _questionService.UpdatedAsync(pollId, id,request, cancellationToken);
-
-        if (result.IsSuccess)
+        try
         {
-            return NoContent();
+            var result = await _questionService.UpdatedAsync(pollId, id, request, cancellationToken);
+
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
+                ? Problem(statusCode: StatusCodes.Status409Conflict)
+                : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
         }
-        return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
-            ? Problem(statusCode: StatusCodes.Status409Conflict)
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while update a questions ");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+
     }
 
 
     [HttpPut(template: "{id}/ToggleStatus")]
     public async Task<IActionResult> ToggleStatus([FromRoute] int pollId,[FromRoute] int id,  CancellationToken cancellationToken)
     {
-        var result = await _questionService.ToggleSatusAsync(pollId ,id, cancellationToken);
-        if (result.IsSuccess)
+        try
         {
-            return NoContent();
+            var result = await _questionService.ToggleSatusAsync(pollId, id, cancellationToken);
+            if (result.IsSuccess)
+            {
+                return NoContent();
+            }
+            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+
         }
-        return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while toggle status a questions ");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
+
 
     }
 }
