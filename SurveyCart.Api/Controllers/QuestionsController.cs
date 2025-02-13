@@ -1,6 +1,7 @@
 ﻿
 
 using Azure.Core;
+using Microsoft.AspNetCore.OutputCaching;
 using SurveyCart.Api.Contracts.Questions;
 
 namespace SurveyCart.Api.Controllers;
@@ -20,6 +21,7 @@ public class QuestionsController : Controller
 
 
     [HttpGet("")]
+    [OutputCache(PolicyName ="polls")]
     public async Task<IActionResult> GetAll([FromRoute] int pollId, CancellationToken cancellationToken)
     {
         try
@@ -49,9 +51,6 @@ public class QuestionsController : Controller
             _logger.LogError(ex, "An unexpected error occurred while get a questions ");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
-
-
     }
 
 

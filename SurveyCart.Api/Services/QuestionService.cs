@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Microsoft.AspNetCore.OutputCaching;
 using SurveyCart.Api.Contracts.Answers;
 using SurveyCart.Api.Contracts.Questions;
 using SurveyCart.Api.Entities;
@@ -9,10 +10,12 @@ namespace SurveyCart.Api.Services
     {
         public readonly ApplicationDbContext _context;
         private readonly ILogger<QuestionService> _logger;
-        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger)
+        private readonly IOutputCacheStore _outputCacheStore;
+        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger, IOutputCacheStore outputCacheStore)
         {
             _context = applicationDb;
             _logger = logger;
+            _outputCacheStore = outputCacheStore;
         }
 
         public async Task<Result<IEnumerable<QuestionResponse>>> GetAll( int pollId,  CancellationToken cancellationToken = default)
@@ -31,7 +34,7 @@ namespace SurveyCart.Api.Services
                     .ProjectToType<QuestionResponse>()
                     .AsNoTracking()
                     .ToListAsync();
-
+                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success<IEnumerable<QuestionResponse>>(questions);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -57,6 +60,7 @@ namespace SurveyCart.Api.Services
                 {
                     return Result.Failure<QuestionResponse>(QuestionErrors.questionNoFound);
                 }
+                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success<QuestionResponse>(question);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -90,6 +94,7 @@ namespace SurveyCart.Api.Services
 
                 await _context.AddAsync(question, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
+                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken); 
                 return Result.Success(question.Adapt<QuestionResponse>());
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -134,6 +139,7 @@ namespace SurveyCart.Api.Services
                 });
 
                 await _context.SaveChangesAsync(cancellationToken);
+                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -159,6 +165,7 @@ namespace SurveyCart.Api.Services
                 }
                 question.isActive= !question.isActive;
                 await _context.SaveChangesAsync();
+                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

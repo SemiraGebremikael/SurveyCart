@@ -9,40 +9,50 @@ public class AuthService : IAuthService
     private readonly UserManager<User> _userManager;
     private readonly IJwtProvider _jwtProvider;
     private readonly  int _refreshTokenExpiryDays = 30;
+    private readonly ILogger<AuthService> _logger;
 
-    public AuthService(UserManager<User> userManager, IJwtProvider jwtProvider)
+    public AuthService(UserManager<User> userManager, IJwtProvider jwtProvider, ILogger<AuthService> logger)
     {
         _userManager = userManager; 
         _jwtProvider = jwtProvider;
+        _logger = logger;
     }
 
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
-   
-        var user = await _userManager.FindByEmailAsync(email);
-
-        if (user == null)
+        try
         {
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
+            }
+            var isvalidPassWord = await _userManager.CheckPasswordAsync(user, password);
+            if (!isvalidPassWord)
+            {
+                return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
+
+            };
+            var (token, expiresIn)= _jwtProvider.GenerateToken(user);
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
+            user.RefreshTokens.Add(new RefreshToken
+            {
+                Token = refreshToken,
+                ExpiresOn = refreshTokenExpiration
+            });
+            await _userManager.UpdateAsync(user);
+
+            var response = new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+            return Result.Success(response);
         }
-        var isvalidPassWord  = await _userManager.CheckPasswordAsync(user, password);
-        if (!isvalidPassWord)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentails);
+            _logger.LogError(ex, $"Failed process to get token {email} {password}", ex.Message);
+            throw;
+        }
 
-        };
-        var (token, expiresIn)= _jwtProvider.GenerateToken(user);
-        var refreshToken = GenerateRefreshToken();
-        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenExpiryDays);
-        user.RefreshTokens.Add(new RefreshToken
-        {
-            Token = refreshToken,
-            ExpiresOn = refreshTokenExpiration
-        });
-        await _userManager.UpdateAsync(user);
-
-        var response = new AuthResponse(user.Id, user.Email, user.FirstName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
-        return Result.Success(response);
 
     }
 
@@ -110,8 +120,16 @@ public class AuthService : IAuthService
 
     private static string GenerateRefreshToken()
     {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        try
+        {
+            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogError(ex, $"Failed process to generate refresh", ex.Message);
+            throw;
+        }
     }
 
 

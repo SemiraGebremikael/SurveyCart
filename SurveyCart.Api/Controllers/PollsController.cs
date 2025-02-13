@@ -154,10 +154,6 @@ public class PollsController : ControllerBase
                 _logger.LogError(ex, $"An unexpected error occurred while removing poll with id {id}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-       
-
-
-
 
     }
 
