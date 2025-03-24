@@ -120,16 +120,19 @@ public class AuthService : IAuthService
 
     private static string GenerateRefreshToken()
     {
-        try
-        {
-            return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
 
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, $"Failed process to generate refresh", ex.Message);
-            throw;
-        }
+
+        //try
+        //{
+        //    return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+        //}
+        //catch (Exception ex) when (ex is not OperationCanceledException)
+        //{
+        //    _logger.LogError(ex, $"Failed process to generate refresh", ex.Message);
+        //    throw;
+        //}
     }
 
 

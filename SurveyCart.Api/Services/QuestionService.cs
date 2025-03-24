@@ -1,8 +1,6 @@
-﻿using Azure.Core;
-using Microsoft.AspNetCore.OutputCaching;
-using SurveyCart.Api.Contracts.Answers;
+﻿using Microsoft.Extensions.Caching.Hybrid;
+
 using SurveyCart.Api.Contracts.Questions;
-using SurveyCart.Api.Entities;
 
 namespace SurveyCart.Api.Services
 {
@@ -10,42 +8,67 @@ namespace SurveyCart.Api.Services
     {
         public readonly ApplicationDbContext _context;
         private readonly ILogger<QuestionService> _logger;
-        private readonly IOutputCacheStore _outputCacheStore;
-        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger, IOutputCacheStore outputCacheStore)
+        private readonly HybridCache _hybridCache;
+        private const string _cachePrefix = "availableQuestions";
+
+
+
+        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger, HybridCache hybridCache)
         {
             _context = applicationDb;
             _logger = logger;
-            _outputCacheStore = outputCacheStore;
+            _hybridCache = hybridCache;
         }
 
-        public async Task<Result<IEnumerable<QuestionResponse>>> GetAll( int pollId,  CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, CancellationToken cancellationToken = default)
         {
-            try {
-
-                var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
+            try
+            {
+                var cacheKey = $"{_cachePrefix}-{pollId}";
+                var pollExistsCacheKey = $"pollExists-{pollId}";
+                var pollIsExists = await _hybridCache.GetOrCreateAsync<bool>(
+                    pollExistsCacheKey,
+                    async cacheEntry =>
+                    {
+                        //cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10)); // Cache for 10 minutes
+                        return await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken);
+                    }
+                );
 
                 if (!pollIsExists)
                 {
                     return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNoFound);
                 }
 
-                var questions = await _context.Questions.Where(x => x.PollId == pollId)
-                    .Include(x => x.Answers)
-                    .ProjectToType<QuestionResponse>()
-                    .AsNoTracking()
-                    .ToListAsync();
-                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
-                return Result.Success<IEnumerable<QuestionResponse>>(questions);
+                var questions = await _hybridCache.GetOrCreateAsync<IEnumerable<QuestionResponse>>(
+                    cacheKey,
+                    async cacheEntry =>
+                    {
+                        _logger.LogInformation($"Cache miss: Fetching from DB and storing in cache for key: {cacheKey}");
+
+                        var data = await _context.Questions
+                            .Where(x => x.PollId == pollId && x.isActive)
+                            .Include(x => x.Answers)
+                            .ProjectToType<QuestionResponse>()
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
+                        _logger.LogInformation($"Data cached successfully for key: {cacheKey}");
+                        return data;
+                    }
+                );
+
+                _logger.LogInformation($"Returning data for key: {cacheKey}");
+                return Result.Success(questions);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogError(ex, $"Failed process to get all questions {pollId}", ex.Message);
                 throw;
             }
-
         }
 
-        public  async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
+
+        public async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -60,7 +83,6 @@ namespace SurveyCart.Api.Services
                 {
                     return Result.Failure<QuestionResponse>(QuestionErrors.questionNoFound);
                 }
-                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success<QuestionResponse>(question);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -94,7 +116,7 @@ namespace SurveyCart.Api.Services
 
                 await _context.AddAsync(question, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
-                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken); 
+                await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
                 return Result.Success(question.Adapt<QuestionResponse>());
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -139,7 +161,8 @@ namespace SurveyCart.Api.Services
                 });
 
                 await _context.SaveChangesAsync(cancellationToken);
-                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
+                await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+
                 return Result.Success();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -165,7 +188,6 @@ namespace SurveyCart.Api.Services
                 }
                 question.isActive= !question.isActive;
                 await _context.SaveChangesAsync();
-                await _outputCacheStore.EvictByTagAsync("availableQuestions", cancellationToken);
                 return Result.Success();
             }
             catch (Exception ex) when (ex is not OperationCanceledException)

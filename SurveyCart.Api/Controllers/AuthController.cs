@@ -25,7 +25,11 @@ namespace SurveyCart.Api.Controllers
                 }
                 return Problem(statusCode: StatusCodes.Status400BadRequest, title: authResut.Error.cod, detail: authResut.Error.Dscription);
             }
-            
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while logging  {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
 
 
         }

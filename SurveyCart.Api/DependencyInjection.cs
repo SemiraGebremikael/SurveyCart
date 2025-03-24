@@ -23,6 +23,7 @@ public static class DependencyInjection
        services.AddScoped<IQuestionService, QuestionService>();
        //services.AddExceptionHandler<GlobalExceptionHandler>();
        //services.AddProblemDetails();
+       services.AddHybridCache();
        services.AddAuthConfig(Configuration);
 
        services.AddFluentValidationAutoValidation()
