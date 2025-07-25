@@ -14,7 +14,7 @@ namespace SurveyCart.Api.Controllers
         }
 
         [HttpPost("")]
-        public async Task<IActionResult> LogginAsync( [FromBody]LoginRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Loggin( [FromBody]LoginRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace SurveyCart.Api.Controllers
         }
 
         [HttpPost("refreshToken")]
-        public async Task<IActionResult> RefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace SurveyCart.Api.Controllers
 
 
         [HttpPost("revokeRefreshToken")]
-        public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -77,6 +77,71 @@ namespace SurveyCart.Api.Controllers
                 _logger.LogError(ex, $"An unexpected error occurred while revoke refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
+
+        }
+
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _authService.RegisterAsync(request,  cancellationToken);
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
+
+
+        }
+
+        [HttpPost("confirm-email")]
+        public async Task<IActionResult> Register([FromBody] ConfirmEmailRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _authService.ConfirmEmailAsync(request);
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
+
+
+        }
+
+
+        [HttpPost("resend-confirmation-email")]
+        public async Task<IActionResult> ResendConfirmationEmail([FromBody] ResendConfirmationEmailRequest request, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result = await _authService.ResendConfirmationEmailAsync(request);
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
+
 
         }
     }

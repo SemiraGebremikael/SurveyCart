@@ -42,13 +42,12 @@ public static class DependencyInjection
 
     }
 
-
-
     private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration Configuration)
     {
         services.AddSingleton<IJwtProvider, JwtProvider>();
         services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
         services.AddOptions<JwtOptions>()
                 .BindConfiguration(JwtOptions.SectionName)
@@ -78,6 +77,17 @@ public static class DependencyInjection
               };
 
           });
+
+        services.Configure<IdentityOptions>(options =>
+        {
+            // Default Password settings.
+            options.Password.RequiredLength = 6;
+            options.SignIn.RequireConfirmedEmail = true;
+            options.User.RequireUniqueEmail = true;
+
+
+        });
+
 
         return services;
 
