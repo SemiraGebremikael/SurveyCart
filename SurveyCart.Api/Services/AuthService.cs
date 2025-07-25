@@ -138,11 +138,8 @@ public class AuthService : IAuthService
         if (result.Succeeded) 
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-            _logger.LogInformation("Confirmation code: {Code}", encodedCode);
-
-
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            _logger.LogInformation("Confirmation code: {Code}", code);
             return Result.Success();
         }
 
@@ -154,12 +151,16 @@ public class AuthService : IAuthService
     public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request, CancellationToken cancellationToken = default)
 
     {
-       if (await _userManager.FindByIdAsync(request.UserId) is not { } user)
+
+        var user = await _userManager.FindByIdAsync(request.UserId);
+        if(user == null)
             return Result.Failure(UserErrors.InvalidCode);
 
        if(user.EmailConfirmed)
             return Result.Failure(UserErrors.DublicatedConfirmation);
-       var code = request.Code;
+
+
+        var code = request.Code;
         try
         {
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(request.Code));
@@ -169,31 +170,32 @@ public class AuthService : IAuthService
             return Result.Failure(UserErrors.InvalidCode);
         }
 
-          var result = await _userManager.ConfirmEmailAsync(user, code);
 
+        var result = await _userManager.ConfirmEmailAsync(user, code);
         if (result.Succeeded)
         {
             return Result.Success();
         }
 
         var error = result.Errors.First();
-        return Result.Failure<AuthResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+        return  Result.Failure(UserErrors.DublicatedConfirmation);
     }
 
 
     public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request, CancellationToken cancellationToken = default)
     {
-        if (await _userManager.FindByEmailAsync(request.Email) is not { } user)
+        var user = await _userManager.FindByEmailAsync(request.Email);
+
+        if (user is null)
+        {
             return Result.Success();
-
-
-       
+        }
 
         if (user.EmailConfirmed)
             return Result.Failure<AuthResponse>(UserErrors.DublicatedConfirmation);
 
           var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            var encodedCode = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+           code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
         _logger.LogInformation("Confirmation code: {Code}", code);
 

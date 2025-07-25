@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using SurveyCart.Api.Settings;
 using System.Text;
 namespace SurveyCart.Api;
 public static class DependencyInjection
@@ -37,6 +38,7 @@ public static class DependencyInjection
             throw new InvalidOperationException("connection String 'DefaultConnection' not found");
         services.AddDbContext<ApplicationDbContext>(options => 
                                                     options.UseSqlServer(connectionString));
+        services.Configure<EmailSettings>(Configuration.GetSection(nameof(EmailSettings)));
 
         return services;
 
