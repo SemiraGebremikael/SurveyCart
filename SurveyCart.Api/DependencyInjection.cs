@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using SurveyCart.Api.Settings;
 using System.Text;
@@ -21,7 +22,8 @@ public static class DependencyInjection
        services.AddSwaggerGen();
        services.AddTransient<IPollService, PollService>();
        services.AddScoped<IAuthService, AuthService>();
-       services.AddScoped<IQuestionService, QuestionService>();
+
+        services.AddScoped<IQuestionService, QuestionService>();
        //services.AddExceptionHandler<GlobalExceptionHandler>();
        //services.AddProblemDetails();
        services.AddHybridCache();
@@ -55,6 +57,10 @@ public static class DependencyInjection
                 .BindConfiguration(JwtOptions.SectionName)
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
+
+        services.AddScoped<IEmailSender, EmailService>();
+        services.AddHttpContextAccessor();
+
 
         var jwtSetting = Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 

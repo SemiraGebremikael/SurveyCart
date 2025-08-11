@@ -3,6 +3,7 @@ using Azure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using SurveyCart.Api.Entities;
+using SurveyCart.Api.Helpers;
 using System.Security.Cryptography;
 using System.Text;
 namespace SurveyCart.Api.Services;
@@ -14,13 +15,25 @@ public class AuthService : IAuthService
     private readonly IJwtProvider _jwtProvider;
     private readonly  int _refreshTokenExpiryDays = 30;
     private readonly ILogger<AuthService> _logger;
+    private readonly IEmailSender _emailSender;
+    private readonly HttpContextAccessor _httpContextAccessor;
 
-    public AuthService(UserManager<User> userManager, SignInManager<User> signInManager,  IJwtProvider jwtProvider, ILogger<AuthService> logger)
+
+    public AuthService(
+        UserManager<User> userManager, 
+        SignInManager<User> signInManager,  
+        IJwtProvider jwtProvider, 
+        ILogger<AuthService> logger, 
+        IEmailSender emailSender,
+        HttpContextAccessor httpContextAccessor
+        )
     {
         _userManager = userManager; 
         _signInManager = signInManager;
         _jwtProvider = jwtProvider;
         _logger = logger;
+        _emailSender = emailSender;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -140,6 +153,8 @@ public class AuthService : IAuthService
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             _logger.LogInformation("Confirmation code: {Code}", code);
+
+            await SendConfirmationEmail(user, code);
             return Result.Success();
         }
 
@@ -198,6 +213,8 @@ public class AuthService : IAuthService
            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
         _logger.LogInformation("Confirmation code: {Code}", code);
+        await SendConfirmationEmail(user, code);
+
 
         return Result.Success();
     }
@@ -220,5 +237,17 @@ public class AuthService : IAuthService
         //}
     }
 
+    private async Task SendConfirmationEmail(ApplicationUser user, string code)
+    {
+        var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
 
+        var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation",
+            template: new Dictionary<string, string>
+                {
+                        {"{{nam}}", user.FirstName},
+                        {"{{action_url}}" , $"{origin}/auth/emailConfirmation?userId={user.id}&code={code}"}
+                }
+         );
+        await _emailSender.SendEmailAsync(user.Email!, "survey Cart: Email Confirmation", emailBody);
+    }
 }
