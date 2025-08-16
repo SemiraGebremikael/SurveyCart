@@ -1,8 +1,8 @@
 ﻿
 using Azure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services; 
 using Microsoft.AspNetCore.WebUtilities;
-using SurveyCart.Api.Entities;
 using SurveyCart.Api.Helpers;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,7 +16,7 @@ public class AuthService : IAuthService
     private readonly  int _refreshTokenExpiryDays = 30;
     private readonly ILogger<AuthService> _logger;
     private readonly IEmailSender _emailSender;
-    private readonly HttpContextAccessor _httpContextAccessor;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
 
     public AuthService(
@@ -24,8 +24,8 @@ public class AuthService : IAuthService
         SignInManager<User> signInManager,  
         IJwtProvider jwtProvider, 
         ILogger<AuthService> logger, 
-        IEmailSender emailSender,
-        HttpContextAccessor httpContextAccessor
+        IEmailSender  emailSender,
+        IHttpContextAccessor httpContextAccessor
         )
     {
         _userManager = userManager; 
@@ -215,7 +215,6 @@ public class AuthService : IAuthService
         _logger.LogInformation("Confirmation code: {Code}", code);
         await SendConfirmationEmail(user, code);
 
-
         return Result.Success();
     }
 
@@ -223,29 +222,17 @@ public class AuthService : IAuthService
     private static string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
-
-        //try
-        //{
-        //    return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-
-        //}
-        //catch (Exception ex) when (ex is not OperationCanceledException)
-        //{
-        //    _logger.LogError(ex, $"Failed process to generate refresh", ex.Message);
-        //    throw;
-        //}
     }
 
-    private async Task SendConfirmationEmail(ApplicationUser user, string code)
+    private async Task SendConfirmationEmail(User user, string code)
     {
         var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
 
         var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation",
-            template: new Dictionary<string, string>
+            templateModel: new Dictionary<string, string>
                 {
                         {"{{nam}}", user.FirstName},
-                        {"{{action_url}}" , $"{origin}/auth/emailConfirmation?userId={user.id}&code={code}"}
+                        {"{{action_url}}" , $"{origin}/auth/emailConfirmation?userId={user.Id}&code={code}"}
                 }
          );
         await _emailSender.SendEmailAsync(user.Email!, "survey Cart: Email Confirmation", emailBody);
