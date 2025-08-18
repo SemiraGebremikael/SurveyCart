@@ -23,7 +23,6 @@
             text-align: center;
             max-width: 400px;
             width: 90%;
-            margin-top: 3rem;
         }
 
             .confirmation-container h1 {
@@ -66,8 +65,9 @@
     <div class="confirmation-container">
         <div class="checkmark">Survey Cart</div>
         <h1>Hello {{name}}</h1>
-        <p>To confirm your email, pleas click thr button below</p>
-        <a href="https://example.com/activate?token=YOUR_TOKEN_HERE" class="button" target="_blank" rel="noopener noreferrer">Verify email Account</a>
+        <p>We have a new poll for you<b>{{pollTill]}}</b>, so we would like to invite you to participate </p>
+        <p>click on the link below to share your opinion. Maximun by {{endDate}}</p>
+        <a href="{{url}}" class="button" target="_blank" >Start Voting</a>
         <p>Thanks,Survey Cart team</p>
     </div>
 </body>

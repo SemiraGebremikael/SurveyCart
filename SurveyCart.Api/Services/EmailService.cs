@@ -8,17 +8,22 @@ using MailKit.Net.Smtp;
 
 namespace SurveyCart.Api.Services;
 
-public class EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger) : IEmailSender
+public class EmailService : IEmailSender
 {
-    private readonly EmailSettings _emailSettings = emailSettings.Value;
+    private readonly EmailSettings _emailSettings;
     private readonly ILogger<EmailService> _logger;
 
+    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
+    {
+        _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
 
-    public async  Task SendEmailAsync(string email, string subject, string htmlMessage)
+    public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {
         var message = new MimeMessage
         {
-            Sender = MailboxAddress.Parse(_emailSettings.Email),
+            Sender = new MailboxAddress("SurveyCart", _emailSettings.Email),
             Subject = subject,
         };
 
@@ -28,21 +33,26 @@ public class EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailSe
             throw new ArgumentException("Invalid email address", nameof(email));
         }
 
-        message.To.Add(MailboxAddress.Parse(email));
 
-        var builder = new BodyBuilder()
+        if (string.IsNullOrWhiteSpace(_emailSettings.Host))
         {
-            HtmlBody = htmlMessage
-        };
+            _logger.LogError("SMTP Host is missing in configuration.");
+            throw new InvalidOperationException("SMTP Host is not configured.");
+        }
+
+
+        message.To.Add(new MailboxAddress("", email));
+
+        var builder = new BodyBuilder { HtmlBody = htmlMessage };
         message.Body = builder.ToMessageBody();
+
         using var smtp = new SmtpClient();
-        _logger.LogInformation("sending email to {email}", email);
-        smtp.Connect(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
+        _logger.LogInformation("Sending email to {email}", email);
 
-        smtp.Authenticate(_emailSettings.Email, _emailSettings.Password);
-
+        await smtp.ConnectAsync(_emailSettings.Host, _emailSettings.Port, SecureSocketOptions.StartTls);
+        await smtp.AuthenticateAsync(_emailSettings.Email, _emailSettings.Password);
         await smtp.SendAsync(message);
-        smtp.Disconnect(true);  
+        await smtp.DisconnectAsync(true);
     }
 
     private bool IsValidEmail(string email)

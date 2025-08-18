@@ -1,4 +1,5 @@
 ﻿
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -18,33 +19,61 @@ public static class DependencyInjection
         //                                         .WithOrigins(Configuration.GetSection("AllowedOrgins").Get<string[]>()!)
 
         //                 ));
-       services.AddEndpointsApiExplorer();
-       services.AddSwaggerGen();
-       services.AddTransient<IPollService, PollService>();
-       services.AddScoped<IAuthService, AuthService>();
 
-        services.AddScoped<IQuestionService, QuestionService>();
-       //services.AddExceptionHandler<GlobalExceptionHandler>();
-       //services.AddProblemDetails();
-       services.AddHybridCache();
-       services.AddAuthConfig(Configuration);
-
-       services.AddFluentValidationAutoValidation()
-               .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-        var mappingConfiguration = TypeAdapterConfig.GlobalSettings;
-        mappingConfiguration.Scan(Assembly.GetExecutingAssembly());
-        services.AddSingleton<IMapper>(implementationInstance: new Mapper(mappingConfiguration));
 
         var connectionString = Configuration.GetConnectionString("DefaultConnection")??
-            throw new InvalidOperationException("connection String 'DefaultConnection' not found");
-        services.AddDbContext<ApplicationDbContext>(options => 
+       throw new InvalidOperationException("connection String 'DefaultConnection' not found");
+        services.AddDbContext<ApplicationDbContext>(options =>
                                                     options.UseSqlServer(connectionString));
         services.Configure<EmailSettings>(Configuration.GetSection(nameof(EmailSettings)));
+
+        services.AddTransient<IPollService, PollService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IEmailSender, EmailService>();
+        services.AddScoped<INotificationService, NotificationService>();
+
+
+
+        services.AddHttpContextAccessor();
+
+        //services.AddExceptionHandler<GlobalExceptionHandler>();
+        //services.AddProblemDetails();
+        services.AddHybridCache();
+        services.AddAuthConfig(Configuration);
+        services.AddBackgroundJobConfig(Configuration);
+        services.AddSwaggerService()
+                .AddMapsterConfig()
+                .AddFluentValidationConfig();
+
+
+
 
         return services;
 
     }
+    public static IServiceCollection AddSwaggerService(this IServiceCollection services)
+    {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen();
+        return services;
+    }
+
+    public static IServiceCollection AddMapsterConfig(this IServiceCollection services)
+    {
+        var mappingConfiguration = TypeAdapterConfig.GlobalSettings;
+        mappingConfiguration.Scan(Assembly.GetExecutingAssembly());
+        services.AddSingleton<IMapper>(implementationInstance: new Mapper(mappingConfiguration));
+        return services;
+    }
+
+    public static IServiceCollection AddFluentValidationConfig(this IServiceCollection services)
+    {
+        services.AddFluentValidationAutoValidation()
+               .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+        return services;
+    }
+
 
     private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration Configuration)
     {
@@ -57,13 +86,7 @@ public static class DependencyInjection
                 .BindConfiguration(JwtOptions.SectionName)
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
-
-        services.AddScoped<IEmailSender, EmailService>();
-        services.AddHttpContextAccessor();
-
-
         var jwtSetting = Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
-
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -81,9 +104,7 @@ public static class DependencyInjection
                   IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:key"]!)),
                   ValidIssuer =Configuration["Jwt:Issuer"],
                   ValidAudience =Configuration["Jwt:Audience"],
-                  
               };
-
           });
 
         services.Configure<IdentityOptions>(options =>
@@ -95,8 +116,18 @@ public static class DependencyInjection
 
 
         });
+        return services;
+    }
+    private static IServiceCollection AddBackgroundJobConfig(this IServiceCollection services, IConfiguration Configuration)
+    {
 
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
 
+        services.AddHangfireServer();
         return services;
 
     }

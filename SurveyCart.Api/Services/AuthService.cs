@@ -1,5 +1,6 @@
 ﻿
 using Azure;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services; 
 using Microsoft.AspNetCore.WebUtilities;
@@ -153,7 +154,7 @@ public class AuthService : IAuthService
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             _logger.LogInformation("Confirmation code: {Code}", code);
-
+            //BackgroundJob.Enqueue(() => SendConfirmationEmail(user, code));
             await SendConfirmationEmail(user, code);
             return Result.Success();
         }
@@ -235,6 +236,8 @@ public class AuthService : IAuthService
                         {"{{action_url}}" , $"{origin}/auth/emailConfirmation?userId={user.Id}&code={code}"}
                 }
          );
-        await _emailSender.SendEmailAsync(user.Email!, "survey Cart: Email Confirmation", emailBody);
+        BackgroundJob.Enqueue(() => _emailSender.SendEmailAsync(user.Email!, "survey Cart: Email Confirmation", emailBody));
+
+        await Task.CompletedTask;
     }
 }

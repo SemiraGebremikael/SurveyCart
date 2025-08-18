@@ -1,5 +1,6 @@
 ﻿
 using Azure.Core;
+using Hangfire;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using SurveyCart.Api.Entities;
 
@@ -9,10 +10,13 @@ public class PollService : IPollService
 {
     public  readonly ApplicationDbContext _context;
     public readonly ILogger<PollService> _logger;
-    public PollService( ApplicationDbContext applicationDb, ILogger<PollService> logger)
+    public readonly INotificationService _notificationService;
+
+    public PollService( ApplicationDbContext applicationDb, ILogger<PollService> logger, INotificationService notificationService)
     {
         _context = applicationDb;
         _logger = logger;
+        _notificationService = notificationService;
     }
 
     public async Task<Result<IEnumerable<PollResponse>>> GettAllAsync(CancellationToken cancellationToken = default)
@@ -33,12 +37,8 @@ public class PollService : IPollService
     }
        
 
-
-    
-
     public async Task<Result<IEnumerable<PollResponse>>> GetCurrentAsync(CancellationToken cancellationToken = default)
     {
-
         try
         {
             var currentPolls = await _context.Polls
@@ -55,8 +55,6 @@ public class PollService : IPollService
             _logger.LogError(ex, $"Failed to process reponse current polls", ex.Message);
             throw;
         }
-      
-
     }
 
     public async Task<Result<PollResponse>> GettByIdAsync(int id, CancellationToken cancellationToken = default)
@@ -78,8 +76,6 @@ public class PollService : IPollService
           throw;
 
         }
-
-
     }
 
     public async Task<Result<PollResponse>> AddAsync(PollRequest request, CancellationToken cancellationToken = default)
@@ -136,8 +132,7 @@ public class PollService : IPollService
             _logger.LogError(ex, $"Failed process for update poll {id}, {request}", ex.Message);
             throw;
         }
-        
-      
+  
     }
 
     public async Task<Result> deleteAsync(int id, CancellationToken cancellationToken = default)
@@ -172,6 +167,8 @@ public class PollService : IPollService
             }
             poll.IsPublished = !poll.IsPublished;
             await _context.SaveChangesAsync();
+            if (poll.IsPublished && poll.StartAT == DateOnly.FromDateTime(DateTime.UtcNow))
+                BackgroundJob.Enqueue(() => _notificationService.SendNewPollNotification(poll.Id));
             return Result.Success();
         }
         catch (Exception ex) when (ex is OperationCanceledException)
