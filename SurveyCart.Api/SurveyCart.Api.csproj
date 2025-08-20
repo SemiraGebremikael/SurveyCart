@@ -5,9 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>021591ec-c9ef-4a6a-8d7d-9c7c00b62f27</UserSecretsId>
+    <Platforms>AnyCPU;ARM32</Platforms>
+
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+    <PackageReference Include="Fluent.Infrastructure" Version="2.0.0-beta-01" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
     <PackageReference Include="Hangfire" Version="1.8.21" />
