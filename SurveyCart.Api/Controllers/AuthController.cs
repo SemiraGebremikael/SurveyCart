@@ -1,5 +1,4 @@
-﻿
-namespace SurveyCart.Api.Controllers
+﻿namespace SurveyCart.Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -144,5 +143,49 @@ namespace SurveyCart.Api.Controllers
 
 
         }
+
+        [HttpPost("forget-password")]
+        public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordRequest request)
+        {
+            try
+            {
+                var result = await _authService.SendResetPasswordAsync(request.Email);
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
+
+
+        }
+        [HttpPost("reset-password")]
+
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            try
+            {
+                var result = await _authService.ResetPasswordAsync(request);
+                if (result.IsSuccess)
+                {
+                    return Ok(result);
+                }
+                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+            }
+
+
+        }
+
+
     }
 }

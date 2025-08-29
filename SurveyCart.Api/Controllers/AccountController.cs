@@ -1,4 +1,5 @@
-﻿using SurveyCart.Api.Contracts.Users;
+﻿using Microsoft.AspNetCore.Mvc;
+using SurveyCart.Api.Contracts.Users;
 
 namespace SurveyCart.Api.Controllers;
 
@@ -27,7 +28,7 @@ public class AccountController(IUserService userService) : ControllerBase
 
     }
 
-    [HttpGet("update-info")]
+    [HttpPut("update-info")]
 
     public async Task<IActionResult> UpdateInfo([FromBody] UpdateProfileRequest request)
     {
@@ -42,6 +43,20 @@ public class AccountController(IUserService userService) : ControllerBase
         }
 
         await _userService.UpdateProfileAsync(userId, request);
+        return NoContent();
+
+    }
+
+
+    [HttpPut("change-password")]
+
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+    {
+
+        var resualt = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+        await _userService.ChangePasswordAsync(resualt, request);
+
         return NoContent();
 
     }

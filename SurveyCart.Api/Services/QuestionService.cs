@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Hybrid;
+﻿//using Microsoft.Extensions.Caching.Hybrid;
 
 using SurveyCart.Api.Contracts.Questions;
 
@@ -8,64 +8,69 @@ namespace SurveyCart.Api.Services
     {
         public readonly ApplicationDbContext _context;
         private readonly ILogger<QuestionService> _logger;
-        private readonly HybridCache _hybridCache;
+        //private readonly HybridCache _hybridCache;
         private const string _cachePrefix = "availableQuestions";
 
 
 
-        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger, HybridCache hybridCache)
+        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger)
         {
             _context = applicationDb;
             _logger = logger;
-            _hybridCache = hybridCache;
+            //_hybridCache = hybridCache;
         }
 
         public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, CancellationToken cancellationToken = default)
         {
-            try
-            {
-                var cacheKey = $"{_cachePrefix}-{pollId}";
-                var pollExistsCacheKey = $"pollExists-{pollId}";
-                var pollIsExists = await _hybridCache.GetOrCreateAsync<bool>(
-                    pollExistsCacheKey,
-                    async cacheEntry =>
-                    {
-                        //cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10)); // Cache for 10 minutes
-                        return await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken);
-                    }
-                );
-
-                if (!pollIsExists)
-                {
-                    return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNoFound);
-                }
-
-                var questions = await _hybridCache.GetOrCreateAsync<IEnumerable<QuestionResponse>>(
-                    cacheKey,
-                    async cacheEntry =>
-                    {
-                        _logger.LogInformation($"Cache miss: Fetching from DB and storing in cache for key: {cacheKey}");
-
-                        var data = await _context.Questions
-                            .Where(x => x.PollId == pollId && x.isActive)
-                            .Include(x => x.Answers)
-                            .ProjectToType<QuestionResponse>()
-                            .AsNoTracking()
-                            .ToListAsync(cancellationToken);
-                        _logger.LogInformation($"Data cached successfully for key: {cacheKey}");
-                        return data;
-                    }
-                );
-
-                _logger.LogInformation($"Returning data for key: {cacheKey}");
-                return Result.Success(questions);
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                _logger.LogError(ex, $"Failed process to get all questions {pollId}", ex.Message);
-                throw;
-            }
+            throw new NotImplementedException();
         }
+   
+
+        //{
+        //    try
+        //    {
+        //        var cacheKey = $"{_cachePrefix}-{pollId}";
+        //        var pollExistsCacheKey = $"pollExists-{pollId}";
+        //        var pollIsExists = await _hybridCache.GetOrCreateAsync<bool>(
+        //            pollExistsCacheKey,
+        //            async cacheEntry =>
+        //            {
+        //                //cacheEntry.SetAbsoluteExpiration(TimeSpan.FromMinutes(10)); // Cache for 10 minutes
+        //                return await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken);
+        //            }
+        //        );
+
+        //        if (!pollIsExists)
+        //        {
+        //            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNoFound);
+        //        }
+
+        //        var questions = await _hybridCache.GetOrCreateAsync<IEnumerable<QuestionResponse>>(
+        //            cacheKey,
+        //            async cacheEntry =>
+        //            {
+        //                _logger.LogInformation($"Cache miss: Fetching from DB and storing in cache for key: {cacheKey}");
+
+        //                var data = await _context.Questions
+        //                    .Where(x => x.PollId == pollId && x.isActive)
+        //                    .Include(x => x.Answers)
+        //                    .ProjectToType<QuestionResponse>()
+        //                    .AsNoTracking()
+        //                    .ToListAsync(cancellationToken);
+        //                _logger.LogInformation($"Data cached successfully for key: {cacheKey}");
+        //                return data;
+        //            }
+        //        );
+
+        //        _logger.LogInformation($"Returning data for key: {cacheKey}");
+        //        return Result.Success(questions);
+        //    }
+        //    catch (Exception ex) when (ex is not OperationCanceledException)
+        //    {
+        //        _logger.LogError(ex, $"Failed process to get all questions {pollId}", ex.Message);
+        //        throw;
+        //    }
+        //}
 
 
         public async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
@@ -116,7 +121,7 @@ namespace SurveyCart.Api.Services
 
                 await _context.AddAsync(question, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
-                await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+                //await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
                 return Result.Success(question.Adapt<QuestionResponse>());
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
@@ -161,7 +166,7 @@ namespace SurveyCart.Api.Services
                 });
 
                 await _context.SaveChangesAsync(cancellationToken);
-                await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
+                //await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
 
                 return Result.Success();
             }

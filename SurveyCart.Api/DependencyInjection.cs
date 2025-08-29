@@ -40,7 +40,8 @@ public static class DependencyInjection
 
         //services.AddExceptionHandler<GlobalExceptionHandler>();
         //services.AddProblemDetails();
-        services.AddHybridCache();
+        //services.AddHybridCache();
+
         services.AddAuthConfig(Configuration);
         services.AddBackgroundJobConfig(Configuration);
         services.AddSwaggerService()
