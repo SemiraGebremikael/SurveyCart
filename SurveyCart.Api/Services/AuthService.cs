@@ -9,33 +9,22 @@ using System.Security.Cryptography;
 using System.Text;
 namespace SurveyCart.Api.Services;
 
-public class AuthService : IAuthService
-{
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
-    private readonly IJwtProvider _jwtProvider;
-    private readonly  int _refreshTokenExpiryDays = 30;
-    private readonly ILogger<AuthService> _logger;
-    private readonly IEmailSender _emailSender;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-
-    public AuthService(
-        UserManager<User> userManager, 
-        SignInManager<User> signInManager,  
-        IJwtProvider jwtProvider, 
-        ILogger<AuthService> logger, 
-        IEmailSender  emailSender,
+public class AuthService(
+     UserManager<User> userManager,
+        SignInManager<User> signInManager,
+        IJwtProvider jwtProvider,
+        ILogger<AuthService> logger,
+        IEmailSender emailSender,
         IHttpContextAccessor httpContextAccessor
-        )
-    {
-        _userManager = userManager; 
-        _signInManager = signInManager;
-        _jwtProvider = jwtProvider;
-        _logger = logger;
-        _emailSender = emailSender;
-        _httpContextAccessor = httpContextAccessor;
-    }
+    ) : IAuthService
+{
+    private readonly UserManager<User> _userManager = userManager;
+    private readonly SignInManager<User> _signInManager = signInManager;
+    private readonly IJwtProvider _jwtProvider = jwtProvider;
+    private readonly  int _refreshTokenExpiryDays = 30;
+    private readonly ILogger<AuthService> _logger = logger;
+    private readonly IEmailSender _emailSender = emailSender;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
@@ -71,11 +60,7 @@ public class AuthService : IAuthService
             _logger.LogError(ex, $"Failed process to get token {email} {password}", ex.Message);
             throw;
         }
-
-
     }
-
-
     public async  Task<Result<AuthResponse>> GetRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
     {
         var userId = _jwtProvider.ValidateToken(token);

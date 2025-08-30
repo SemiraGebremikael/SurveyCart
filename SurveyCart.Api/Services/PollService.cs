@@ -2,18 +2,16 @@
 using Hangfire;
 namespace SurveyCart.Api.Services;
 
-public class PollService : IPollService
+public class PollService(
+    ApplicationDbContext applicationDb, 
+    ILogger<PollService> logger, 
+    INotificationService notificationService
+    ) : IPollService
 {
-    public  readonly ApplicationDbContext _context;
-    public readonly ILogger<PollService> _logger;
-    public readonly INotificationService _notificationService;
+    public  readonly ApplicationDbContext _context = applicationDb;
+    public readonly ILogger<PollService> _logger = logger;
+    public readonly INotificationService _notificationService = notificationService;
 
-    public PollService( ApplicationDbContext applicationDb, ILogger<PollService> logger, INotificationService notificationService)
-    {
-        _context = applicationDb;
-        _logger = logger;
-        _notificationService = notificationService;
-    }
 
     public async Task<Result<IEnumerable<PollResponse>>> GettAllAsync(CancellationToken cancellationToken = default)
     {

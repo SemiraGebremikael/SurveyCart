@@ -6,10 +6,12 @@ namespace SurveyCart.Api.Controllers;
 [Route("api/polls/{pollId}/vote")]
 [ApiController]
 //[Authorize]
-public class VotesController(IQuestionService questionService, IVoteServices voteServices) : ControllerBase
+public class VotesController(IQuestionService questionService, IVoteServices voteServices, ILogger<VotesController> logger) : ControllerBase
 {
     private readonly IQuestionService _questionService = questionService;
     private readonly IVoteServices _voteServices = voteServices;
+    private readonly ILogger<VotesController> _logger = logger;
+
 
     [HttpGet("")]
     public async Task<IActionResult> Start([FromBody] int pollId, CancellationToken cancellationToken )
@@ -22,7 +24,8 @@ public class VotesController(IQuestionService questionService, IVoteServices vot
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while get user info ");
+            _logger.LogError(ex, "An unexpected error occurred while get  all polls ");
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred");
             
         }
 
@@ -39,7 +42,8 @@ public class VotesController(IQuestionService questionService, IVoteServices vot
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while validating the request {request} ");
+            _logger.LogError(ex, $"An unexpected error occurred while validating the request {request} ");
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred ");
         }
 
     }

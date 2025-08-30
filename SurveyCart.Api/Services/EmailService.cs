@@ -8,16 +8,11 @@ using MailKit.Net.Smtp;
 
 namespace SurveyCart.Api.Services;
 
-public class EmailService : IEmailSender
+public class EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger) : IEmailSender
 {
-    private readonly EmailSettings _emailSettings;
-    private readonly ILogger<EmailService> _logger;
+    private readonly EmailSettings _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
+    private readonly ILogger<EmailService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public EmailService(IOptions<EmailSettings> emailSettings, ILogger<EmailService> logger)
-    {
-        _emailSettings = emailSettings.Value ?? throw new ArgumentNullException(nameof(emailSettings));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
 
     public async Task SendEmailAsync(string email, string subject, string htmlMessage)
     {

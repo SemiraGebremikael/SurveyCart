@@ -11,7 +11,8 @@ public class NotificationService (
     ApplicationDbContext context,
     UserManager<User> userManager,
     IHttpContextAccessor httpContextAccessor,
-    IEmailSender emailSender) : INotificationService
+    IEmailSender emailSender
+    ) : INotificationService
 {
     private readonly ApplicationDbContext _context = context;
     private readonly UserManager<User> _userManager = userManager;

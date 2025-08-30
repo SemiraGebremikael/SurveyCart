@@ -4,21 +4,17 @@ using SurveyCart.Api.Contracts.Questions;
 
 namespace SurveyCart.Api.Services
 {
-    public class QuestionService : IQuestionService
+    public class QuestionService(
+        ApplicationDbContext applicationDb, 
+        ILogger<QuestionService> logger
+       //, _hybridCache = hybridCache;
+     ) : IQuestionService
     {
-        public readonly ApplicationDbContext _context;
-        private readonly ILogger<QuestionService> _logger;
+        public readonly ApplicationDbContext _context = applicationDb;
+        private readonly ILogger<QuestionService> _logger = logger;
         //private readonly HybridCache _hybridCache;
         private const string _cachePrefix = "availableQuestions";
 
-
-
-        public QuestionService(ApplicationDbContext applicationDb, ILogger<QuestionService> logger)
-        {
-            _context = applicationDb;
-            _logger = logger;
-            //_hybridCache = hybridCache;
-        }
 
         public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, string userId,  CancellationToken cancellationToken = default)
         {

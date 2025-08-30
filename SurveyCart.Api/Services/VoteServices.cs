@@ -2,7 +2,9 @@
 
 namespace SurveyCart.Api.Services
 {
-    public class VoteServices(ApplicationDbContext context) : IVoteServices
+    public class VoteServices(
+        ApplicationDbContext context
+        ) : IVoteServices
     {
         public readonly ApplicationDbContext _context = context;
 
