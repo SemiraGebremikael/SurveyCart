@@ -1,9 +1,5 @@
 ﻿
-using Azure.Core;
 using Hangfire;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using SurveyCart.Api.Entities;
-
 namespace SurveyCart.Api.Services;
 
 public class PollService : IPollService

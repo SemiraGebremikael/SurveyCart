@@ -1,4 +1,6 @@
-﻿namespace SurveyCart.Api.Controllers
+﻿using SurveyCart.Api.Abstractions;
+
+namespace SurveyCart.Api.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -17,20 +19,14 @@
         {
             try
             {
-                var authResut = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
-                if (authResut.IsSuccess)
-                {
-                    return Ok(authResut);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: authResut.Error.cod, detail: authResut.Error.Dscription);
+                var result = await _authService.GetTokenAsync(request.Email, request.Password, cancellationToken);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while logging  {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
 
         [HttpPost("refreshToken")]
@@ -38,20 +34,14 @@
         {
             try
             {
-                var authResut = await _authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
-                if (authResut.IsSuccess)
-                {
-                    return Ok(authResut);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: authResut.Error.cod, detail: authResut.Error.Dscription);
+                var result = await _authService.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+                return result.IsSuccess ? Ok(result) : Problem();   
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
 
 
@@ -60,25 +50,15 @@
         {
             try
             {
-                var isRoevoked = await _authService.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
-
-                if (isRoevoked.IsSuccess)
-                {
-
-                    return Ok(isRoevoked);
-                }
-
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: isRoevoked.Error.cod, detail: isRoevoked.Error.Dscription);
-
+                var result = await _authService.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while revoke refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
         }
-
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
@@ -86,19 +66,13 @@
             try
             {
                 var result = await _authService.RegisterAsync(request,  cancellationToken);
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
 
         [HttpPost("confirm-email")]
@@ -107,19 +81,13 @@
             try
             {
                 var result = await _authService.ConfirmEmailAsync(request);
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+                return result.IsSuccess? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
 
 
@@ -129,19 +97,13 @@
             try
             {
                 var result = await _authService.ResendConfirmationEmailAsync(request);
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
 
         [HttpPost("forget-password")]
@@ -150,42 +112,28 @@
             try
             {
                 var result = await _authService.SendResetPasswordAsync(request.Email);
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
-        [HttpPost("reset-password")]
 
+        [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
             try
             {
                 var result = await _authService.ResetPasswordAsync(request);
-                if (result.IsSuccess)
-                {
-                    return Ok(result);
-                }
-                return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+                return result.IsSuccess ? Ok(result) : Problem();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An unexpected error occurred while refresh token {request}");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
             }
-
-
         }
-
-
     }
 }

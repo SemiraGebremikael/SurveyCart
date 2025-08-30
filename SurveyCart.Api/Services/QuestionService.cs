@@ -20,7 +20,7 @@ namespace SurveyCart.Api.Services
             //_hybridCache = hybridCache;
         }
 
-        public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, CancellationToken cancellationToken = default)
+        public async Task<Result<IEnumerable<QuestionResponse>>> GetAll(int pollId, string userId,  CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
@@ -102,9 +102,7 @@ namespace SurveyCart.Api.Services
         {
             try
             {
-
                 var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
-
                 if (!pollIsExists)
                 {
                     return Result.Failure<QuestionResponse>(PollErrors.PollNoFound);
@@ -118,7 +116,6 @@ namespace SurveyCart.Api.Services
 
                 var question = request.Adapt<Question>();
                 question.PollId = pollId;
-
                 await _context.AddAsync(question, cancellationToken);
                 await _context.SaveChangesAsync(cancellationToken);
                 //await _hybridCache.RemoveAsync($"{_cachePrefix}-{pollId}", cancellationToken);
@@ -144,7 +141,6 @@ namespace SurveyCart.Api.Services
                 }
                 var question = await _context.Questions.Include(x => x.Answers)
                                                        .SingleOrDefaultAsync(x => x.PollId == pollId && x.Id == id, cancellationToken: cancellationToken);
-
                 if (question == null)
                 {
                     return Result.Failure<QuestionResponse>(QuestionErrors.questionNoFound);
@@ -176,10 +172,6 @@ namespace SurveyCart.Api.Services
                 throw;
             }
 
-
-
-
-
         }
 
         public async  Task<Result> ToggleSatusAsync(int pollId, int id, CancellationToken cancellationToken = default)
@@ -191,7 +183,7 @@ namespace SurveyCart.Api.Services
                 {
                     return Result.Failure(QuestionErrors.questionNoFound);
                 }
-                question.isActive= !question.isActive;
+                question.IsActive= !question.IsActive;
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
@@ -201,9 +193,6 @@ namespace SurveyCart.Api.Services
                 throw;
             }
 
-
         }
-
-
     }
 }

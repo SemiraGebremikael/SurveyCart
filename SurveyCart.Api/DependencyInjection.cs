@@ -30,6 +30,8 @@ public static class DependencyInjection
         services.AddTransient<IPollService, PollService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IQuestionService, QuestionService>();
+        services.AddScoped<IVoteServices, VoteServices>();
+
         services.AddScoped<IEmailSender, EmailService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IUserService, UserService>();

@@ -1,6 +1,4 @@
 ﻿
-
-using Azure.Core;
 using Microsoft.AspNetCore.OutputCaching;
 using SurveyCart.Api.Contracts.Questions;
 
@@ -22,19 +20,18 @@ public class QuestionsController : Controller
 
     [HttpGet("")]
     [OutputCache(PolicyName ="polls")]
-    public async Task<IActionResult> GetAll([FromRoute] int pollId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromRoute] int pollId,string userId, CancellationToken cancellationToken)
     {
         try
         {
-            var result = await _questionService.GetAll(pollId, cancellationToken);
-            return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+            var result = await _questionService.GetAll(pollId, userId, cancellationToken);
+            return result.IsSuccess ? Ok(result.Value) : Problem();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred while get  all questions ");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
     }
 
 
@@ -44,7 +41,7 @@ public class QuestionsController : Controller
         try
         {
             var result = await _questionService.GetAsync(pollId, id, cancellationToken);
-            return result.IsSuccess ? Ok(result.Value) : Problem(statusCode: StatusCodes.Status404NotFound);
+            return result.IsSuccess ? Ok(result.Value) : Problem();
         }
         catch (Exception ex)
         {
@@ -60,14 +57,7 @@ public class QuestionsController : Controller
         try
         {
             var result = await _questionService.AddAsync(pollId, request, cancellationToken);
-
-            if (result.IsSuccess)
-            {
-                return CreatedAtAction(nameof(Get), new { pollId, result.Value.Id }, result.Value);
-            }
-            return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
-                ? Problem(statusCode: StatusCodes.Status409Conflict)
-                : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? CreatedAtAction(nameof(Get), new { pollId, result.Value.Id }, result.Value) : Problem();
         }
         catch (Exception ex)
         {
@@ -82,21 +72,13 @@ public class QuestionsController : Controller
         try
         {
             var result = await _questionService.UpdatedAsync(pollId, id, request, cancellationToken);
-
-            if (result.IsSuccess)
-            {
-                return NoContent();
-            }
-            return result.Error.Equals(QuestionErrors.DublicatedQuestionContent)
-                ? Problem(statusCode: StatusCodes.Status409Conflict)
-                : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? NoContent(): Problem();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred while update a questions ");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
     }
 
 
@@ -106,19 +88,12 @@ public class QuestionsController : Controller
         try
         {
             var result = await _questionService.ToggleSatusAsync(pollId, id, cancellationToken);
-            if (result.IsSuccess)
-            {
-                return NoContent();
-            }
-            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
-
+            return result.IsSuccess ? NoContent() : Problem();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unexpected error occurred while toggle status a questions ");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
-
     }
 }

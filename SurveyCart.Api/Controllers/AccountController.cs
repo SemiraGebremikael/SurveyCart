@@ -1,63 +1,62 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SurveyCart.Api.Contracts.Users;
+using SurveyCart.Api.Extensions;
+
 
 namespace SurveyCart.Api.Controllers;
 
 
-[Route("api/AccountInfo")]
+[Route("api/[controller]")]
 [ApiController]
-[Authorize]
+//[Authorize]
 
 public class AccountController(IUserService userService) : ControllerBase
 {
     private readonly IUserService _userService = userService;
+
     [HttpGet("")]
     public async Task<IActionResult> Info()
     {
-        //var tesult = await _userService.GetProfileAsync(User.GetUserId()!);
-        //return Ok(tesult.value);
-
-        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
-        if (userIdClaim == null)
-        {
-            return Unauthorized();
+        try {
+            var tesult = await _userService.GetProfileAsync(User.GetUserId()!);
+            return Ok(tesult.Value);
         }
-
-        var result = await _userService.GetProfileAsync(userIdClaim.Value);
-        return Ok(result.Value);
-
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while get user info ");
+        }
+        ;
     }
 
     [HttpPut("update-info")]
-
     public async Task<IActionResult> UpdateInfo([FromBody] UpdateProfileRequest request)
     {
-        //var userIdClaim = await _userService.UpdateProfileAsync(User.GetUserId()!, request);
-        //return NoContent();
-
-
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        try
         {
-            return Unauthorized();
+            var userIdClaim = await _userService.UpdateProfileAsync(User.GetUserId()!, request);
+            return NoContent();
         }
-
-        await _userService.UpdateProfileAsync(userId, request);
-        return NoContent();
-
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while update user info  {request} ");
+        }
     }
 
 
     [HttpPut("change-password")]
-
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
     {
+        try
+        {
+            var resualt = User.GetUserId();
+            await _userService.ChangePasswordAsync(resualt, request);
+            return NoContent();
+        }
 
-        var resualt = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-        await _userService.ChangePasswordAsync(resualt, request);
-
-        return NoContent();
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred while change password user info  {request} ");
+        }
 
     }
 }

@@ -1,9 +1,4 @@
 ﻿
-using FluentValidation.Validators;
-using Microsoft.Extensions.Logging;
-using SurveyCart.Api.Abstractions;
-using SurveyCart.Api.Entities;
-
 namespace SurveyCart.Api.Controllers;
 
 [Route("api/[controller]")]
@@ -30,12 +25,7 @@ public class PollsController : ControllerBase
 
         try
         {
-            if (result.IsSuccess)
-            {
-                return Ok(result.Value);
-            }
-
-            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? Ok(result.Value) : Problem();
         }
         catch (Exception ex)
         {
@@ -51,13 +41,7 @@ public class PollsController : ControllerBase
         try
         {
             var result = await _pollService.GetCurrentAsync(cancellationToken);
-
-            if (result.IsSuccess)
-            {
-                return Ok(result.Value);
-            }
-
-            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? Ok(result.Value) : Problem();
         }
         catch (Exception ex)
         {
@@ -74,11 +58,7 @@ public class PollsController : ControllerBase
         try
         {
             var result = await _pollService.GettByIdAsync(id, cancellationToken);
-            if (result.IsSuccess)
-            {
-                return Ok(result.Value);
-            }
-            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? Ok(result.Value) :  Problem();
         }
         catch (Exception ex)
         {
@@ -95,12 +75,7 @@ public class PollsController : ControllerBase
         try
         {
             var result = await _pollService.AddAsync(request, cancellationToken);
-            if (result.IsSuccess)
-            {
-                //return CreatedAtAction(nameof(Get), new { id = result.Value.Id }, result.Value);
-                return Ok(result.Value.Id);
-            }
-            return Problem(statusCode: StatusCodes.Status409Conflict, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? Ok(result.Value.Id): Problem();
         }
         catch (Exception ex)
         {
@@ -116,11 +91,8 @@ public class PollsController : ControllerBase
         try
         {
             var result = await _pollService.updateAsync(id, request, cancellationToken);
-            if (result.IsSuccess)
-            {
-                return NoContent();
-            }
-            return Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.cod, detail: result.Error.Dscription);
+            return result.IsSuccess ? NoContent() : Problem();
+       
         }
         catch (Exception ex)
         {
@@ -135,25 +107,18 @@ public class PollsController : ControllerBase
 
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
     {
-      
-            try
-            {
-                var result = await _pollService.deleteAsync(id, cancellationToken);
 
-                if (result.IsSuccess)
-                {
-                    return NoContent();
-                }
-                else
-                {
-                    return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"An unexpected error occurred while removing poll with id {id}");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
-            }
+        try
+        {
+            var result = await _pollService.deleteAsync(id, cancellationToken);
+            return result.IsSuccess ? NoContent() : Problem();
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"An unexpected error occurred while removing poll with id {id}");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
+        }
 
     }
 
@@ -164,15 +129,9 @@ public class PollsController : ControllerBase
         try
         {
             var result = await _pollService.TogglePublishSatusAsync(id, cancellationToken);
-            if (result.IsSuccess)
-            {
-                return NoContent();
-            }
-            return Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.cod, detail: result.Error.Dscription);
-
-
+            return result.IsSuccess ? NoContent() : Problem();
         }
-        catch(Exception ex) 
+        catch (Exception ex) 
         { _logger.LogError($"An unexpected error occurred while toggle publish poll with id {id}");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
 
