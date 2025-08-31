@@ -2,7 +2,7 @@
 
 namespace SurveyCart.Api.Entities
 {
-    public class UserRole: IdentityRole
+    public sealed class Role: IdentityRole
     {
         public bool IsDefault { get; set; }
         public bool ISDeleted { get; set; } 

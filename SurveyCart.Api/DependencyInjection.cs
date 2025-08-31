@@ -82,7 +82,7 @@ public static class DependencyInjection
     private static IServiceCollection AddAuthConfig(this IServiceCollection services, IConfiguration Configuration)
     {
         services.AddSingleton<IJwtProvider, JwtProvider>();
-        services.AddIdentity<User, UserRole>()
+        services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 

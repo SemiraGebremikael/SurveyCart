@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurveyCart.Api.Peristence;
 
@@ -11,9 +12,11 @@ using SurveyCart.Api.Peristence;
 namespace SurveyCart.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250831190931_updateEntitiName")]
+    partial class updateEntitiName
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,113 +48,6 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetRoleClaims", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            ClaimType = "Permissions",
-                            ClaimValue = "polls:read",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            ClaimType = "Permissions",
-                            ClaimValue = "polls:add",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            ClaimType = "Permissions",
-                            ClaimValue = "polls:create",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            ClaimType = "Permissions",
-                            ClaimValue = "polls:update",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            ClaimType = "Permissions",
-                            ClaimValue = "polls:delete",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            ClaimType = "Permissions",
-                            ClaimValue = "question:read",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            ClaimType = "Permissions",
-                            ClaimValue = "question:add",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            ClaimType = "Permissions",
-                            ClaimValue = "question:update",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            ClaimType = "Permissions",
-                            ClaimValue = "user:read",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            ClaimType = "Permissions",
-                            ClaimValue = "user:add",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            ClaimType = "Permissions",
-                            ClaimValue = "user:update",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            ClaimType = "Permissions",
-                            ClaimValue = "role:read",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            ClaimType = "Permissions",
-                            ClaimValue = "role:add",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            ClaimType = "Permissions",
-                            ClaimValue = "role:update",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        },
-                        new
-                        {
-                            Id = 15,
-                            ClaimType = "Permissions",
-                            ClaimValue = "results:read",
-                            RoleId = "d241e2a9-e784-4281-9e80-96c2c67aa6f9"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -471,7 +367,7 @@ namespace SurveyCart.Api.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMINSURVET-CART.COM",
                             NormalizedUserName = "ADMINSURVET-CART.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAECHycjQCfuMWZB4ZmHZpXj8OxFcMCF5qwm+p5ICYM5knYcEAICGOEjRL/lMseFyhlg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHHdK0joD61zpF465sRaJXs82xL0BROrhvqBnUbe0uFeLqBlLgd7Bn4EAwwA/VTKrA==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "E33EB181-2A19-4E52-8E87-ED38CEE33C32",
                             TwoFactorEnabled = false,
