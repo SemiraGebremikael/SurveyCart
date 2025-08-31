@@ -1,12 +1,11 @@
 ﻿
 using Microsoft.AspNetCore.OutputCaching;
 using SurveyCart.Api.Contracts.Questions;
-
 namespace SurveyCart.Api.Controllers;
 
 [Route("api/polls/{pollId}[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class QuestionsController : Controller
 {
     private readonly IQuestionService _questionService;

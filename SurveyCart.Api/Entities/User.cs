@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System.Globalization;
-
 namespace SurveyCart.Api.Entities
 {
     public sealed class User:IdentityUser

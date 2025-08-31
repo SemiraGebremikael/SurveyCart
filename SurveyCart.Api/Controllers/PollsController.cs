@@ -1,10 +1,7 @@
-﻿
-namespace SurveyCart.Api.Controllers;
+﻿namespace SurveyCart.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
-
 public class PollsController : ControllerBase
 {
     private readonly IPollService _pollService;
@@ -32,7 +29,6 @@ public class PollsController : ControllerBase
             _logger.LogError(ex, "An unexpected error occurred while get  all polls ");
             return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred");
         }
-
     }
 
     [HttpGet(template: "currentPolls")]

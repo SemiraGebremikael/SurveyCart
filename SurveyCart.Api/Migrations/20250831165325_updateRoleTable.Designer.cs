@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SurveyCart.Api.Peristence;
 
@@ -11,9 +12,11 @@ using SurveyCart.Api.Peristence;
 namespace SurveyCart.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250831165325_updateRoleTable")]
+    partial class updateRoleTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,7 +155,7 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("QuestionId", "Content")
                         .IsUnique();
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("SurveyCart.Api.Entities.Poll", b =>
@@ -187,7 +190,7 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("Title")
                         .IsUnique();
 
-                    b.ToTable("Polls", (string)null);
+                    b.ToTable("Polls");
                 });
 
             modelBuilder.Entity("SurveyCart.Api.Entities.Question", b =>
@@ -214,7 +217,7 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("PollId", "Content")
                         .IsUnique();
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("SurveyCart.Api.Entities.User", b =>
@@ -350,7 +353,7 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("PollId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Votes", (string)null);
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("SurveyCart.Api.Entities.VoteAnswer", b =>
@@ -379,7 +382,7 @@ namespace SurveyCart.Api.Migrations
                     b.HasIndex("VoteId", "QuestionId")
                         .IsUnique();
 
-                    b.ToTable("VoteAnswers", (string)null);
+                    b.ToTable("VoteAnswers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -457,7 +460,7 @@ namespace SurveyCart.Api.Migrations
 
             modelBuilder.Entity("SurveyCart.Api.Entities.User", b =>
                 {
-                    b.OwnsMany("SurveyCart.Api.Entities.User.RefreshTokens#SurveyCart.Api.Entities.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("SurveyCart.Api.Entities.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("UserId")
                                 .HasColumnType("nvarchar(450)");

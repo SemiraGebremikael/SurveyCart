@@ -5,7 +5,7 @@ namespace SurveyCart.Api.Controllers;
 
 [Route("api/polls/{pollId}/vote")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class VotesController(IQuestionService questionService, IVoteServices voteServices, ILogger<VotesController> logger) : ControllerBase
 {
     private readonly IQuestionService _questionService = questionService;
@@ -26,10 +26,7 @@ public class VotesController(IQuestionService questionService, IVoteServices vot
         {
             _logger.LogError(ex, "An unexpected error occurred while get  all polls ");
             return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred");
-            
-        }
-
-       
+        } 
     }
 
     [HttpPost("")]
@@ -45,8 +42,5 @@ public class VotesController(IQuestionService questionService, IVoteServices vot
             _logger.LogError(ex, $"An unexpected error occurred while validating the request {request} ");
             return StatusCode(StatusCodes.Status500InternalServerError, $"An unexpected error occurred ");
         }
-
     }
-
-
 }

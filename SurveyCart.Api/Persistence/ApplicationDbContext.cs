@@ -1,9 +1,8 @@
 ﻿
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace SurveyCart.Api.Peristence;
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor): IdentityDbContext<User>(options)
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor): IdentityDbContext<User, UserRole, string>(options)
 {
     private readonly DbContextOptions<ApplicationDbContext> options = options;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;

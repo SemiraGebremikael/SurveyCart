@@ -1,14 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using SurveyCart.Api.Contracts.Users;
+﻿using SurveyCart.Api.Contracts.Users;
 using SurveyCart.Api.Extensions;
-
-
 namespace SurveyCart.Api.Controllers;
-
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 
 public class AccountController(IUserService userService) : ControllerBase
 {

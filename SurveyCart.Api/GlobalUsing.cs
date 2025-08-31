@@ -20,6 +20,7 @@ global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using SurveyCart.Api.Abstractions;
 global using SurveyCart.Api.Errors;
 global using System.Security.Claims;
+global using SurveyCart.Api.Abstractions.Consts;
 
 
 
