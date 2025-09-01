@@ -150,7 +150,6 @@ public class AuthService(
 
 
     public async Task<Result> ConfirmEmailAsync(ConfirmEmailRequest request, CancellationToken cancellationToken = default)
-
     {
 
         var user = await _userManager.FindByIdAsync(request.UserId);
@@ -175,6 +174,7 @@ public class AuthService(
         var result = await _userManager.ConfirmEmailAsync(user, code);
         if (result.Succeeded)
         {
+            await _userManager.AddToRoleAsync(user, DefaultRoles.Member);
             return Result.Success();
         }
 
